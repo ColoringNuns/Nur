@@ -1,0 +1,30 @@
+@font-face {
+  font-family: 'Prstart';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Prstart'), url('assets/Prstart.ttf') format('truetype');
+}
+
+head, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #232323;
+  color: white;
+  font-family: 'Prstart';
+}
+
+canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+#container {
+  margin: 20px;
+  width: 200px;
+  height: 8px;
+}
