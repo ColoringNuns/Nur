@@ -12,14 +12,22 @@ class Player {
     this.attSpr = attSpr;
     this.hp = 100;
     this.hb = bar;
+    this.dead = false;
   }
 
   checkHit(spr) {
     return this.attSpr.overlap(spr);
   }
 
-  hit() {
-    this.hp -= Math.ceil(Math.random() * 10);
+  hit(dmg) {
+    this.hb.stop();
+    this.hp = this.hp - dmg;
+    if (this.hp <= 0) {
+      this.hb.animate(0);
+      this.dead = true;
+    } else {
+      this.hb.animate(this.hp / 100);
+    }
   }
 
   jump() {
@@ -42,6 +50,16 @@ class Player {
   }
 
   draw() {
+    if (this.sp.position.y - 20 > this.height) {
+      this.hit(20);
+      if (this.hp > 0) {
+        this.sp.position.y = this.height / 2 - 200;
+        this.sp.position.x = 50;
+        this.sp.velocity.x = 0;
+        this.sp.velocity.y = 0;
+      }
+    }
+
     this.getAttack();
     if (this.attDelay == 0) {
       this.attSpr.changeAnimation('blank');

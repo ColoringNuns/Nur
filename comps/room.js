@@ -110,15 +110,10 @@ class Room {
     const bar = new ProgressBar.Line('#container', {
       strokeWidth: 5,
       easing: 'easeInOut',
-      color: '#FFEA82',
+      color: '#4180AF',
       trailColor: '#565656',
       trailWidth: 5,
       svgStyle: { width: '100%', height: '100%'},
-      from: {color: '#E74C3C'},
-      to: {color: '#2ECC71'},
-      step: (state, bar) => {
-        bar.path.setAttribute('stroke', state.color);
-      }
     });
     bar.set(1);
 
@@ -206,7 +201,7 @@ class Room {
     for (let i = 0; i < this.background.length; i++) {
       image(...this.background[i]);
     }
-    if (this.ready) {
+    if (this.ready && !this.player.dead) {
       this.player.draw();
       if (this.isHost) {
         for (let i = 0; i < this.len; i++) {
