@@ -7,7 +7,7 @@ class Enemy {
   update(x,y,mirror,label,frame,attX,attAnm) {
     this.sp.position.x = x;
     this.attSpr.position.x = attX;
-    (attX < x ? this.attSpr.mirrorX(-1) : this.attSpr.mirrorX(-1));
+    (attX < x ? this.attSpr.mirrorX(-1) : this.attSpr.mirrorX(1));
     this.sp.position.y = y;
     this.attSpr.position.y = y;
     this.sp.mirrorX(mirror);
