@@ -173,7 +173,7 @@ class Room {
 
       this.conn.host.on('data', (data) => {
         if (data.enemy !== null) {
-          if (data.enemy[1] != 'HOST') {
+          if (data.enemy[1] != false) {
             this.enemies[data.enemy[1]].update(...data.enemy[0]);
           } else {
             this.hostSpr.update(...data.enemy[0]);
@@ -205,10 +205,29 @@ class Room {
       this.player.draw();
       if (this.isHost) {
         for (let i = 0; i < this.len; i++) {
-          this.conn.nodes[i].send({enemy:[[this.player.sp.position.x, this.player.sp.position.y, this.player.sp.mirrorX(), this.player.sp.getAnimationLabel()],'HOST']});
+          this.conn.nodes[i].send({
+            enemy:[
+              [
+                this.player.sp.position.x,
+                this.player.sp.position.y,
+                this.player.sp.mirrorX(),
+                animations.indexOf(this.player.sp.getAnimationLabel()),
+                this.player.sp.animation.getFrame()
+              ],
+              false
+            ]
+          });
         }
       } else {
-        this.conn.host.send({enemy:[this.player.sp.position.x, this.player.sp.position.y, this.player.sp.mirrorX(), this.player.sp.getAnimationLabel()]});
+        this.conn.host.send({
+          enemy:[
+            this.player.sp.position.x,
+            this.player.sp.position.y, 
+            this.player.sp.mirrorX(),
+            animations.indexOf(this.player.sp.getAnimationLabel()),
+            this.player.sp.animation.getFrame()
+          ]
+        });
       }
     }
     drawSprites();
@@ -217,3 +236,4 @@ class Room {
 
 const letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
 const numbers = ['1','2','3','4','5','6','7','8','9','0'];
+const animations = ['idle','run','somer','jump','kick','blank'];

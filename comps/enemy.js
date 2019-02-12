@@ -3,10 +3,14 @@ class Enemy {
     this.sp = sprite;
   }
 
-  update(x,y,mirror,label) {
+  update(x,y,mirror,label,frame) {
     this.sp.position.x = x;
     this.sp.position.y = y;
     this.sp.mirrorX(mirror);
-    this.sp.changeAnimation(label);
+    if (label != this.sp.getAnimationLabel()) {
+      this.sp.changeAnimation(animations[label]);
+      this.sp.animation.stop();
+    }
+    this.sp.animation.changeFrame(frame);
   }
 }
