@@ -129,28 +129,63 @@ class Room {
     this.ready = true;
   }
 
-  initialize(height, type, conn, isHost) {
+  initialize(height, type, conn, isHost, len) {
     this.ready = false;
     this.conn = conn;
     this.isHost = isHost;
+    this.len = len;
 
     this.enemies = [];
-    let enem = createSprite();
-    enem.addAnimation('idle', this.idle);
-    enem.addAnimation('run', this.run);
-    enem.addAnimation('somer', this.somer);
-    enem.addAnimation('jump', this.jump);
-    enem.addAnimation('kick', this.kick);
-    enem.addAnimation('blank', this.blank);
-    enem.changeAnimation('blank');
-    enem.animation.frameDelay = 12;
-    enem.setCollider('rectangle', 0, 0, 15, 16);
-    enem = new Enemy(enem);
-    this.enemies.push(enem);
+    for (let i = 0; i < len; i++) {
+      let enem = createSprite();
+      enem.addAnimation('idle', this.idle);
+      enem.addAnimation('run', this.run);
+      enem.addAnimation('somer', this.somer);
+      enem.addAnimation('jump', this.jump);
+      enem.addAnimation('kick', this.kick);
+      enem.addAnimation('blank', this.blank);
+      enem.changeAnimation('blank');
+      enem.animation.frameDelay = 12;
+      enem.setCollider('rectangle', 0, 0, 15, 16);
+      enem = new Enemy(enem);
+      this.enemies.push(enem);
 
-    this.conn.on('data', (data) => {
-      if (data.enemy !== null) this.enemies[0].update(...data.enemy);
-    });
+      if (isHost) {
+        this.conn.nodes[i].on('data', (data) => {
+          if (data.enemy !== null) {
+            this.enemies[i].update(...data.enemy);
+            for (let j = 0; j < len; j++) {
+              if (i != j) {
+                this.conn.nodes[j].send({enemy:[data.enemy,i]});
+              }
+            }
+          }
+        });
+      }
+    }
+    if (!isHost) {
+      let enem = createSprite();
+      enem.addAnimation('idle', this.idle);
+      enem.addAnimation('run', this.run);
+      enem.addAnimation('somer', this.somer);
+      enem.addAnimation('jump', this.jump);
+      enem.addAnimation('kick', this.kick);
+      enem.addAnimation('blank', this.blank);
+      enem.changeAnimation('blank');
+      enem.animation.frameDelay = 12;
+      enem.setCollider('rectangle', 0, 0, 15, 16);
+      this.hostSpr = new Enemy(enem);
+
+      this.conn.host.on('data', (data) => {
+        if (data.enemy !== null) {
+          if (data.enemy[1] != 'HOST') {
+            this.enemies[data.enemy[1]].update(...data.enemy[0]);
+          } else {
+            this.hostSpr.update(...data.enemy[0]);
+          }
+        }
+      });
+    }
 
     fetch('maps/'+ type +'/fore.txt')
       .then(response => response.text())
@@ -173,10 +208,17 @@ class Room {
     }
     if (this.ready) {
       this.player.draw();
-      this.conn.send({enemy:[this.player.sp.position.x, this.player.sp.position.y, this.player.sp.mirrorX(), this.player.sp.getAnimationLabel()]});
+      if (this.isHost) {
+        for (let i = 0; i < this.len; i++) {
+          this.conn.nodes[i].send({enemy:[[this.player.sp.position.x, this.player.sp.position.y, this.player.sp.mirrorX(), this.player.sp.getAnimationLabel()],'HOST']});
+        }
+      } else {
+        this.conn.host.send({enemy:[this.player.sp.position.x, this.player.sp.position.y, this.player.sp.mirrorX(), this.player.sp.getAnimationLabel()]});
+      }
     }
     drawSprites();
   }
 }
 
 const letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
+const numbers = ['1','2','3','4','5','6','7','8','9','0'];

@@ -12,7 +12,10 @@ class Prompt {
 
   handleKey(key) {
     if (key == 8) this.text = this.text.substring(0, this.text.length - 1);
-    else if (key != 13) this.text += String.fromCharCode(key).toLowerCase();
+    else if (key != 13) {
+      const lett = String.fromCharCode(key).toLowerCase();
+      this.text += (letters.indexOf(lett) != -1 || numbers.indexOf(lett) != -1 ? lett : '');
+    }
   }
 
   checkChosen() {
