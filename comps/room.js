@@ -132,18 +132,7 @@ class Room {
 
     this.enemies = [];
     for (let i = 0; i < len; i++) {
-      let enem = createSprite();
-      enem.addAnimation('idle', this.idle);
-      enem.addAnimation('run', this.run);
-      enem.addAnimation('somer', this.somer);
-      enem.addAnimation('jump', this.jump);
-      enem.addAnimation('kick', this.kick);
-      enem.addAnimation('blank', this.blank);
-      enem.changeAnimation('blank');
-      enem.animation.frameDelay = 12;
-      enem.setCollider('rectangle', 0, 0, 15, 16);
-      enem = new Enemy(enem);
-      this.enemies.push(enem);
+      this.enemies.push(this.createEnemy());
 
       if (isHost) {
         this.conn.nodes[i].on('data', (data) => {
@@ -159,17 +148,7 @@ class Room {
       }
     }
     if (!isHost) {
-      let enem = createSprite();
-      enem.addAnimation('idle', this.idle);
-      enem.addAnimation('run', this.run);
-      enem.addAnimation('somer', this.somer);
-      enem.addAnimation('jump', this.jump);
-      enem.addAnimation('kick', this.kick);
-      enem.addAnimation('blank', this.blank);
-      enem.changeAnimation('blank');
-      enem.animation.frameDelay = 12;
-      enem.setCollider('rectangle', 0, 0, 15, 16);
-      this.hostSpr = new Enemy(enem);
+      this.hostSpr = this.createEnemy();
 
       this.conn.host.on('data', (data) => {
         if (data.enemy !== null) {
@@ -187,6 +166,27 @@ class Room {
       .then(fore => fetch('maps/'+ type +'/back.txt')
         .then(response => response.text())
         .then(back => this.generate(fore,back,type)))
+  }
+
+  createEnemy() {
+    const enem = createSprite();
+    enem.addAnimation('idle', this.idle);
+    enem.addAnimation('run', this.run);
+    enem.addAnimation('somer', this.somer);
+    enem.addAnimation('jump', this.jump);
+    enem.addAnimation('kick', this.kick);
+    enem.addAnimation('blank', this.blank);
+    enem.changeAnimation('blank');
+    enem.animation.frameDelay = 12;
+    enem.setCollider('rectangle', 0, 0, 15, 16);
+
+    const attSpr = createSprite();
+    attSpr.addAnimation('attack', this.attack);
+    attSpr.addAnimation('blank', this.blank);
+    attSpr.changeAnimation('blank');
+    attSpr.setCollider('rectangle', 0, 0, 20, 20);
+
+    return new Enemy(enem, attSpr);
   }
 
   handleKey(key) {
@@ -212,7 +212,9 @@ class Room {
                 this.player.sp.position.y,
                 this.player.sp.mirrorX(),
                 animations.indexOf(this.player.sp.getAnimationLabel()),
-                this.player.sp.animation.getFrame()
+                this.player.sp.animation.getFrame(),
+                this.player.attSpr.position.x,
+                (this.player.attSpr.getAnimationLabel() == 'attack')
               ],
               false
             ]
@@ -222,10 +224,12 @@ class Room {
         this.conn.host.send({
           enemy:[
             this.player.sp.position.x,
-            this.player.sp.position.y, 
+            this.player.sp.position.y,
             this.player.sp.mirrorX(),
             animations.indexOf(this.player.sp.getAnimationLabel()),
-            this.player.sp.animation.getFrame()
+            this.player.sp.animation.getFrame(),
+            this.player.attSpr.position.x,
+            (this.player.attSpr.getAnimationLabel() == 'attack')
           ]
         });
       }
