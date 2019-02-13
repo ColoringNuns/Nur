@@ -155,7 +155,7 @@ class Room {
 
       this.conn.host.on('data', (data) => {
         if (data.enemy !== null) {
-          if (data.enemy[1] != false) {
+          if (data.enemy[1] != -1) {
             this.enemies[data.enemy[1]].update(...data.enemy[0]);
           } else {
             this.hostSpr.update(...data.enemy[0]);
@@ -221,7 +221,7 @@ class Room {
                 this.player.attSpr.position.x,
                 (this.player.attSpr.getAnimationLabel() == 'attack'),
               ],
-              false
+              -1
             ]
           });
         }
