@@ -6,6 +6,7 @@
 }
 
 head, body {
+  position: relative;
   margin: 0;
   padding: 0;
   height: 100%;
@@ -17,17 +18,35 @@ head, body {
 }
 
 canvas {
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%);
 }
 
-#container {
-  position: absolute;
+#plr0bar {
+  position: fixed;
   width: 200px;
   height: 8px;
   top: 50%;
   left: 50%;
-  transform: translate(calc(-50% - 380px),calc(-50% - 300px));
+  transform: translate(calc(-50% - 379px), calc(-50% + 285px));
+}
+#plr1bar {
+  position: fixed;
+  width: 200px;
+  height: 8px;
+  transform: translateX(253px);
+}
+#plr2bar {
+  position: fixed;
+  width: 200px;
+  height: 8px;
+  transform: translateX(253px);
+}
+#plr3bar {
+  position: fixed;
+  width: 200px;
+  height: 8px;
+  transform: translateX(253px);
 }

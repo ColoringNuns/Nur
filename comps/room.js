@@ -77,7 +77,6 @@ class Room {
           } else {
             tile.addImage('tile',this['tile' + type[0] + mapFT[j][i]]);
           }
-          //tile.debug = true;
 
           mapF.add(tile);
         }
@@ -99,28 +98,53 @@ class Room {
     this.player.animation.frameDelay = 12;
     this.player.setCollider('rectangle', 0, 0, 15, 16);
     this.player.depth = 1;
-    //this.player.debug = true;
 
     const attSpr = createSprite();
     attSpr.addAnimation('attack', this.attack);
     attSpr.addAnimation('blank', this.blank);
     attSpr.setCollider('rectangle', 0, 0, 20, 20);
     attSpr.depth = 2;
-    //this.attSpr.debug = true;
     delete this.attack;
     delete this.blank;
 
-    const bar = new ProgressBar.Line('#container', {
+    const bar0 = new ProgressBar.Line('#plr0bar', {
       strokeWidth: 5,
       easing: 'easeInOut',
-      color: '#4180AF',
+      color: '#' + colors[0],
       trailColor: '#565656',
       trailWidth: 5,
       svgStyle: { width: '100%', height: '100%'},
     });
-    bar.set(1);
+    bar0.set(1);
+    const bar1 = new ProgressBar.Line('#plr1bar', {
+      strokeWidth: 5,
+      easing: 'easeInOut',
+      color: '#' + colors[1],
+      trailColor: '#565656',
+      trailWidth: 5,
+      svgStyle: { width: '100%', height: '100%'},
+    });
+    bar1.set(1);
+    const bar2 = new ProgressBar.Line('#plr2bar', {
+      strokeWidth: 5,
+      easing: 'easeInOut',
+      color: '#' + colors[2],
+      trailColor: '#565656',
+      trailWidth: 5,
+      svgStyle: { width: '100%', height: '100%'},
+    });
+    bar2.set(1);
+    const bar3 = new ProgressBar.Line('#plr3bar', {
+      strokeWidth: 5,
+      easing: 'easeInOut',
+      color: '#' + colors[3],
+      trailColor: '#565656',
+      trailWidth: 5,
+      svgStyle: { width: '100%', height: '100%'},
+    });
+    bar3.set(1);
 
-    this.player = new Player(this.player,height,mapF, attSpr, bar);
+    this.player = new Player(this.player,height,mapF, attSpr, bar0);
 
     noSmooth();
 
@@ -246,3 +270,4 @@ class Room {
 const letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
 const numbers = ['1','2','3','4','5','6','7','8','9','0'];
 const animations = ['idle','run','somer','jump','kick','blank'];
+const colors = ["4180AF","A9373E","F9BA48","91B036"];

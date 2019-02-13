@@ -9,7 +9,12 @@ function preload() {
     peerID = id;
 	});
   peer.on('connection', function(c) {
-    conn.nodes.push(c);
+    if (conn.nodes.length < 3) {
+      conn.nodes.push(c);
+    }
+    if (conn.nodes.length == 4) {
+      menu.label = "Room is full.";
+    }
   });
 }
 
@@ -52,7 +57,7 @@ function draw() {
       } else if (gameState == 'MAPSELECT') {
         if (conn.nodes.length != 0 && isHost) {
           for (let i = 0; i < conn.nodes.length; i++) {
-            conn.nodes[i].send({ map:[chosen, conn.nodes.length] });
+            conn.nodes[i].send({ begin:[chosen, conn.nodes.length, colors[i]] });
           }
           room.initialize(width, chosen, conn, isHost, conn.nodes.length);
           gameState = 'INGAME';
@@ -66,8 +71,8 @@ function draw() {
           menu.initialize(width,height);
           gameState = 'MAPSELECT';
           conn.host.on('data', function(data) {
-            if (data.map != null) {
-              room.initialize(width, data.map[0], conn, isHost, data.map[1]);
+            if (data.begin != null) {
+              room.initialize(width, data.begin[0], conn, isHost, data.begin[1]);
               gameState = 'INGAME';
             }
           });
@@ -77,7 +82,7 @@ function draw() {
     } else {
       if (gameState == 'MAPSELECT') {
         if (isHost) {
-          menu.label = "ID: " + peerID + ", " + conn.nodes.length + " Players";
+          menu.label = "ID: " + peerID + ", " + (conn.nodes.length + 1) + " Players";
         }
       }
       menu.draw();
