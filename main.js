@@ -67,7 +67,6 @@ function draw() {
           gameState = 'MAPSELECT';
           conn.host.on('data', function(data) {
             if (data.map != null) {
-              //console.log(conn);
               room.initialize(width, data.map[0], conn, isHost, data.map[1]);
               gameState = 'INGAME';
             }

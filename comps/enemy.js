@@ -2,6 +2,7 @@ class Enemy {
   constructor(sprite,attSpr) {
     this.sp = sprite;
     this.attSpr = attSpr;
+    this.blanked = true;
   }
 
   update(x,y,mirror,label,frame,attX,attAnm) {
@@ -16,6 +17,18 @@ class Enemy {
       this.sp.animation.stop();
     }
     this.sp.animation.changeFrame(frame);
-    (attAnm ? this.attSpr.changeAnimation('attack') : this.attSpr.changeAnimation('blank'));
+
+    if (attAnm && this.attSpr.animation.getFrame() != 4) {
+      this.attSpr.changeAnimation('attack');
+      if (this.blanked) {
+        this.attSpr.animation.changeFrame(0);
+        this.blanked = !this.blanked;
+      }
+      this.attSpr.animation.looping = false;
+      this.attSpr.animation.frameDelay = 3;
+    } else {
+      this.attSpr.changeAnimation('blank');
+      this.blanked = true;
+    }
   }
 }

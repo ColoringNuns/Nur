@@ -51,8 +51,8 @@ class Room {
     const mapBT = this.parseMap(back);
     this.background = [];
 
-    for (var i = 0; i < 60; i++) {
-      for (var j = 0; j < 35; j++) {
+    for (let i = 0; i < 60; i++) {
+      for (let j = 0; j < 35; j++) {
         if (mapBT[j][i] != "-") {
           if (mapBT[j][i] == mapBT[j][i].toUpperCase()) {
             this.background.push([this.getReverse(this['tile' + type[0] + mapBT[j][i].toLowerCase()]), i*8, j*8]);
@@ -66,10 +66,11 @@ class Room {
     const mapFT = this.parseMap(fore);
     const mapF = new Group();
 
-    for (var i = 0; i < 60; i++) {
-      for (var j = 0; j < 35; j++) {
+    for (let i = 0; i < 60; i++) {
+      for (let j = 0; j < 35; j++) {
         if (mapFT[j][i] != "-") {
           let tile = createSprite(i*8 + 4, j*8 + 4, 8, 8);
+          tile.depth = 0;
           if (mapFT[j][i] == mapFT[j][i].toUpperCase()) {
             tile.addImage('tile',this['tile' + type[0] + mapFT[j][i].toLowerCase()]);
             tile.mirrorX(-1);
@@ -97,12 +98,14 @@ class Room {
     this.player.changeAnimation('idle');
     this.player.animation.frameDelay = 12;
     this.player.setCollider('rectangle', 0, 0, 15, 16);
+    this.player.depth = 1;
     //this.player.debug = true;
 
     const attSpr = createSprite();
     attSpr.addAnimation('attack', this.attack);
     attSpr.addAnimation('blank', this.blank);
     attSpr.setCollider('rectangle', 0, 0, 20, 20);
+    attSpr.depth = 2;
     //this.attSpr.debug = true;
     delete this.attack;
     delete this.blank;
@@ -179,12 +182,14 @@ class Room {
     enem.changeAnimation('blank');
     enem.animation.frameDelay = 12;
     enem.setCollider('rectangle', 0, 0, 15, 16);
+    enem.depth = 1;
 
     const attSpr = createSprite();
     attSpr.addAnimation('attack', this.attack);
     attSpr.addAnimation('blank', this.blank);
     attSpr.changeAnimation('blank');
     attSpr.setCollider('rectangle', 0, 0, 20, 20);
+    attSpr.depth = 2;
 
     return new Enemy(enem, attSpr);
   }
@@ -214,7 +219,7 @@ class Room {
                 animations.indexOf(this.player.sp.getAnimationLabel()),
                 this.player.sp.animation.getFrame(),
                 this.player.attSpr.position.x,
-                (this.player.attSpr.getAnimationLabel() == 'attack')
+                (this.player.attSpr.getAnimationLabel() == 'attack'),
               ],
               false
             ]
@@ -229,7 +234,7 @@ class Room {
             animations.indexOf(this.player.sp.getAnimationLabel()),
             this.player.sp.animation.getFrame(),
             this.player.attSpr.position.x,
-            (this.player.attSpr.getAnimationLabel() == 'attack')
+            (this.player.attSpr.getAnimationLabel() == 'attack'),
           ]
         });
       }
