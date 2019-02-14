@@ -7,8 +7,8 @@ class Enemy {
     this.bar = bar;
   }
 
-  update(x,y,mirror,label,frame,attX,attAnm,hp) {
-    if (hp > 0) {
+  update(x,y,mirror,label,frame,attX,attAnm,lives) {
+    if (lives > 0) {
       this.sp.position.x = x;
       this.attSpr.position.x = attX;
       (attX < x ? this.attSpr.mirrorX(-1) : this.attSpr.mirrorX(1));
@@ -36,11 +36,11 @@ class Enemy {
         this.canAtt = true;
       }
 
-      this.bar.set(hp / 100);
+      this.bar.set(lives / 4);
     } else {
       this.sp.changeAnimation('blank');
       this.attSpr.changeAnimation('blank');
-      this.bar.set(hp / 100);
+      this.bar.set(0);
     }
   }
 }

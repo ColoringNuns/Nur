@@ -10,18 +10,21 @@ class Player {
     this.sprintAdd = 2;
     this.map = map;
     this.attSpr = attSpr;
-    this.hp = 100;
+    this.lives = 4;
+    this.mult = 1;
     this.hb = bar;
     this.dead = false;
+    this.xspd = 0;
   }
 
-  hit(dmg) {
-    this.hp = this.hp - dmg;
-    if (this.hp <= 0) {
-      this.hp = 0;
+  fell() {
+    this.lives--;
+    this.mult = 1;
+    if (this.lives <= 0) {
+      this.lives = 0;
       this.dead = true;
     }
-    this.hb.set(this.hp / 100);
+    this.hb.set(this.lives / 4);
   }
 
   jump() {
@@ -45,11 +48,11 @@ class Player {
 
   draw() {
     if (this.sp.position.y - 20 > this.height) {
-      this.hit(20);
-      if (this.hp > 0) {
+      this.fell();
+      if (this.lives > 0) {
         this.sp.position.y = this.height / 2 - 200;
         this.sp.position.x = 50;
-        this.sp.velocity.x = 0;
+        this.xspd = 0;
         this.sp.velocity.y = 0;
       }
     }
@@ -63,7 +66,8 @@ class Player {
     };
 
     const movement = this.getMovement();
-    this.sp.position.x += movement;
+    this.sp.position.x += movement + this.xspd;
+    this.xspd *= 0.95;
 
     this.sp.velocity.y += 0.2;
     this.sp.collide(this.map, (spr1, spr2) => {
@@ -71,6 +75,7 @@ class Player {
 
       if (this.sp.velocity.y > 0 && onGround) {
         this.sp.velocity.y = 0;
+        this.xspd = 0;
         this.jumpCounter = 0;
       }
     });

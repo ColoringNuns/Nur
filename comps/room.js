@@ -254,7 +254,9 @@ class Room {
           if (this.enemies[i] != null) {
             if (this.player.sp.overlap(this.enemies[i].attSpr) && this.enemies[i].attSpr.getAnimationLabel() == 'attack' && this.enemies[i].canAtt) {
               this.enemies[i].canAtt = false;
-              this.player.hit(5);
+              this.player.sp.velocity.y = -4;
+              this.player.xspd = 0.25 * this.player.mult * (this.enemies[i].sp.position.x > this.player.sp.position.x ? -1 : 1);
+              this.player.mult++;
             }
           }
         }
@@ -267,7 +269,7 @@ class Room {
         this.player.sp.animation.getFrame(),
         this.player.attSpr.position.x,
         (this.player.attSpr.getAnimationLabel() == 'attack'),
-        this.player.hp
+        this.player.lives
       ];
       if (this.isHost) {
         for (let i = 0; i < this.len; i++) {
@@ -278,7 +280,9 @@ class Room {
       } else {
         if (this.player.sp.overlap(this.hostSpr.attSpr) && this.hostSpr.attSpr.getAnimationLabel() == 'attack' && this.hostSpr.canAtt) {
           this.hostSpr.canAtt = false;
-          this.player.hit(5);
+          this.player.sp.velocity.y = -4;
+          this.player.xspd = 0.25 * this.player.mult * (this.hostSpr.sp.position.x > this.player.sp.position.x ? -1 : 1);
+          this.player.mult++;
         }
         this.conn.host.send({enemy:data});
       }
