@@ -12,7 +12,7 @@ function preload() {
     if (conn.nodes.length < 3) {
       conn.nodes.push(c);
     }
-    if (conn.nodes.length == 4) {
+    if (conn.nodes.length >= 3) {
       menu.label = "Room is full.";
     }
   });
@@ -57,9 +57,9 @@ function draw() {
       } else if (gameState == 'MAPSELECT') {
         if (conn.nodes.length != 0 && isHost) {
           for (let i = 0; i < conn.nodes.length; i++) {
-            conn.nodes[i].send({ begin:[chosen, conn.nodes.length, colors[i]] });
+            conn.nodes[i].send({ begin:[chosen, conn.nodes.length, i] });
           }
-          room.initialize(width, chosen, conn, isHost, conn.nodes.length);
+          room.initialize(width, chosen, conn, isHost, conn.nodes.length, -1);
           gameState = 'INGAME';
         } else {
           alert('Not Enough Players.');
@@ -72,7 +72,7 @@ function draw() {
           gameState = 'MAPSELECT';
           conn.host.on('data', function(data) {
             if (data.begin != null) {
-              room.initialize(width, data.begin[0], conn, isHost, data.begin[1]);
+              room.initialize(width, data.begin[0], conn, isHost, data.begin[1], data.begin[2]);
               gameState = 'INGAME';
             }
           });

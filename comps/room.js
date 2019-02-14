@@ -47,7 +47,7 @@ class Room {
     return rev;
   }
 
-  generate(fore,back,type) {
+  generate(fore,back,type,index) {
     const mapBT = this.parseMap(back);
     this.background = [];
 
@@ -107,75 +107,54 @@ class Room {
     delete this.attack;
     delete this.blank;
 
-    const bar0 = new ProgressBar.Line('#plr0bar', {
+    const bar = new ProgressBar.Line('#plr0bar', {
       strokeWidth: 5,
       easing: 'easeInOut',
-      color: '#' + colors[0],
+      color: '#' + colors[index],
       trailColor: '#565656',
       trailWidth: 5,
       svgStyle: { width: '100%', height: '100%'},
     });
-    bar0.set(1);
-    const bar1 = new ProgressBar.Line('#plr1bar', {
-      strokeWidth: 5,
-      easing: 'easeInOut',
-      color: '#' + colors[1],
-      trailColor: '#565656',
-      trailWidth: 5,
-      svgStyle: { width: '100%', height: '100%'},
-    });
-    bar1.set(1);
-    const bar2 = new ProgressBar.Line('#plr2bar', {
-      strokeWidth: 5,
-      easing: 'easeInOut',
-      color: '#' + colors[2],
-      trailColor: '#565656',
-      trailWidth: 5,
-      svgStyle: { width: '100%', height: '100%'},
-    });
-    bar2.set(1);
-    const bar3 = new ProgressBar.Line('#plr3bar', {
-      strokeWidth: 5,
-      easing: 'easeInOut',
-      color: '#' + colors[3],
-      trailColor: '#565656',
-      trailWidth: 5,
-      svgStyle: { width: '100%', height: '100%'},
-    });
-    bar3.set(1);
+    bar.set(1);
 
-    this.player = new Player(this.player,height,mapF, attSpr, bar0);
+    this.player = new Player(this.player,height,mapF, attSpr, bar);
 
     noSmooth();
 
     this.ready = true;
   }
 
-  initialize(height, type, conn, isHost, len) {
+  initialize(height, type, conn, isHost, len, index) {
     this.ready = false;
     this.conn = conn;
     this.isHost = isHost;
     this.len = len;
 
     this.enemies = [];
+    let k = 0;
     for (let i = 0; i < len; i++) {
-      this.enemies.push(this.createEnemy());
+      if (i != index) {
+        this.enemies.push(this.createEnemy(k + 1, i));
 
-      if (isHost) {
-        this.conn.nodes[i].on('data', (data) => {
-          if (data.enemy !== null) {
-            this.enemies[i].update(...data.enemy);
-            for (let j = 0; j < len; j++) {
-              if (i != j) {
-                this.conn.nodes[j].send({enemy:[data.enemy,i]});
+        if (isHost) {
+          this.conn.nodes[i].on('data', (data) => {
+            if (data.enemy !== null) {
+              this.enemies[i].update(...data.enemy);
+              for (let j = 0; j < len; j++) {
+                if (i != j) {
+                  this.conn.nodes[j].send({enemy:[data.enemy,i]});
+                }
               }
             }
-          }
-        });
+          });
+        }
+        k++;
+      } else {
+        this.enemies.push(null);
       }
     }
     if (!isHost) {
-      this.hostSpr = this.createEnemy();
+      this.hostSpr = this.createEnemy(len, len);
 
       this.conn.host.on('data', (data) => {
         if (data.enemy !== null) {
@@ -192,10 +171,10 @@ class Room {
       .then(response => response.text())
       .then(fore => fetch('maps/'+ type +'/back.txt')
         .then(response => response.text())
-        .then(back => this.generate(fore,back,type)))
+        .then(back => this.generate(fore,back,type,(index != -1 ? index : len))))
   }
 
-  createEnemy() {
+  createEnemy(index,color) {
     const enem = createSprite();
     enem.addAnimation('idle', this.idle);
     enem.addAnimation('run', this.run);
@@ -215,7 +194,17 @@ class Room {
     attSpr.setCollider('rectangle', 0, 0, 20, 20);
     attSpr.depth = 2;
 
-    return new Enemy(enem, attSpr);
+    const bar = new ProgressBar.Line('#plr' + index + 'bar', {
+      strokeWidth: 5,
+      easing: 'easeInOut',
+      color: '#' + colors[color],
+      trailColor: '#565656',
+      trailWidth: 5,
+      svgStyle: { width: '100%', height: '100%'},
+    });
+    bar.set(1);
+
+    return new Enemy(enem, attSpr, bar);
   }
 
   handleKey(key) {
@@ -244,6 +233,7 @@ class Room {
                 this.player.sp.animation.getFrame(),
                 this.player.attSpr.position.x,
                 (this.player.attSpr.getAnimationLabel() == 'attack'),
+                this.player.hp
               ],
               -1
             ]
@@ -259,6 +249,7 @@ class Room {
             this.player.sp.animation.getFrame(),
             this.player.attSpr.position.x,
             (this.player.attSpr.getAnimationLabel() == 'attack'),
+            this.player.hp
           ]
         });
       }

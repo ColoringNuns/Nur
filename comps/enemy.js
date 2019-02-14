@@ -1,11 +1,13 @@
 class Enemy {
-  constructor(sprite,attSpr) {
+  constructor(sprite,attSpr,bar) {
     this.sp = sprite;
     this.attSpr = attSpr;
     this.blanked = true;
+    this.hp = 100;
+    this.bar = bar;
   }
 
-  update(x,y,mirror,label,frame,attX,attAnm) {
+  update(x,y,mirror,label,frame,attX,attAnm,hp) {
     this.sp.position.x = x;
     this.attSpr.position.x = attX;
     (attX < x ? this.attSpr.mirrorX(-1) : this.attSpr.mirrorX(1));
@@ -29,6 +31,12 @@ class Enemy {
     } else {
       this.attSpr.changeAnimation('blank');
       this.blanked = true;
+    }
+
+    if (this.hp != hp) {
+      this.hp = hp;
+      this.bar.stop();
+      this.bar.animate(hp / 100);
     }
   }
 }
