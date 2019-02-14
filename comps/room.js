@@ -1,18 +1,41 @@
 class Room {
   constructor() {
-    this.run = loadSpriteSheet('assets/doux/run.png', 24, 24, 72);
-    this.idle = loadSpriteSheet('assets/doux/idle.png', 24, 24, 72);
-    this.somer = loadSpriteSheet('assets/doux/somer.png', 24, 24, 72);
-    this.jump = loadSpriteSheet('assets/doux/jump.png', 24, 24, 72);
-    this.kick = loadSpriteSheet('assets/doux/kick.png', 24, 24, 72);
-    this.attack = loadSpriteSheet('assets/doux/attack.png', 24, 20, 72);
-    this.blank = loadSpriteSheet('assets/doux/blank.png', 24, 20, 72);
+    this.doux = {
+      run: loadSpriteSheet('assets/doux/run.png', 24, 24, 72),
+      idle: loadSpriteSheet('assets/doux/idle.png', 24, 24, 72),
+      somer: loadSpriteSheet('assets/doux/somer.png', 24, 24, 72),
+      jump: loadSpriteSheet('assets/doux/jump.png', 24, 24, 72),
+      kick: loadSpriteSheet('assets/doux/kick.png', 24, 24, 72),
+    };
+    this.mort = {
+      run: loadSpriteSheet('assets/mort/run.png', 24, 24, 72),
+      idle: loadSpriteSheet('assets/mort/idle.png', 24, 24, 72),
+      somer: loadSpriteSheet('assets/mort/somer.png', 24, 24, 72),
+      jump: loadSpriteSheet('assets/mort/jump.png', 24, 24, 72),
+      kick: loadSpriteSheet('assets/mort/kick.png', 24, 24, 72),
+    };
+    this.tard = {
+      run: loadSpriteSheet('assets/tard/run.png', 24, 24, 72),
+      idle: loadSpriteSheet('assets/tard/idle.png', 24, 24, 72),
+      somer: loadSpriteSheet('assets/tard/somer.png', 24, 24, 72),
+      jump: loadSpriteSheet('assets/tard/jump.png', 24, 24, 72),
+      kick: loadSpriteSheet('assets/tard/kick.png', 24, 24, 72),
+    };
+    this.vita = {
+      run: loadSpriteSheet('assets/vita/run.png', 24, 24, 72),
+      idle: loadSpriteSheet('assets/vita/idle.png', 24, 24, 72),
+      somer: loadSpriteSheet('assets/vita/somer.png', 24, 24, 72),
+      jump: loadSpriteSheet('assets/vita/jump.png', 24, 24, 72),
+      kick: loadSpriteSheet('assets/vita/kick.png', 24, 24, 72),
+    };
 
-    loadAnimation(this.run);
-    loadAnimation(this.idle);
-    loadAnimation(this.somer);
-    loadAnimation(this.jump);
-    loadAnimation(this.kick);
+    this.attack = loadSpriteSheet('assets/attack.png', 24, 20, 72),
+    this.blank = loadSpriteSheet('assets/blank.png', 24, 20, 72),
+
+    this.loadAnimations(this.doux);
+    this.loadAnimations(this.mort);
+    this.loadAnimations(this.tard);
+    this.loadAnimations(this.vita);
     loadAnimation(this.attack);
     loadAnimation(this.blank);
 
@@ -22,6 +45,12 @@ class Room {
     }
     for (let i = 1; i < 26; i++) {
       this['tilem' + letters[i - 1]] = loadImage('assets/tiles/metal/tile' + i + '.jpg');
+    }
+  }
+
+  loadAnimations(anims) {
+    for (let i in anims) {
+      loadAnimation(anims[i]);
     }
   }
 
@@ -45,6 +74,15 @@ class Room {
     }
     rev.updatePixels();
     return rev;
+  }
+
+  addAnimations(dino,obj) {
+    obj.addAnimation('idle', dino.idle);
+    obj.addAnimation('run', dino.run);
+    obj.addAnimation('somer', dino.somer);
+    obj.addAnimation('jump', dino.jump);
+    obj.addAnimation('kick', dino.kick);
+    obj.addAnimation('blank', this.blank);
   }
 
   generate(fore,back,type,index) {
@@ -83,17 +121,9 @@ class Room {
       }
     }
 
+    const dinos = [this.doux,this.mort,this.tard,this.vita];
     this.player = createSprite(50, height / 2 - 200);
-    this.player.addAnimation('idle', this.idle);
-    this.player.addAnimation('run', this.run);
-    this.player.addAnimation('somer', this.somer);
-    this.player.addAnimation('jump', this.jump);
-    this.player.addAnimation('kick', this.kick);
-    delete this.run;
-    delete this.idle;
-    delete this.somer;
-    delete this.jump;
-    delete this.kick;
+    this.addAnimations(dinos[index],this.player);
     this.player.changeAnimation('idle');
     this.player.animation.frameDelay = 12;
     this.player.setCollider('rectangle', 0, 0, 15, 16);
@@ -175,13 +205,9 @@ class Room {
   }
 
   createEnemy(index,color) {
+    const dinos = [this.doux,this.mort,this.tard,this.vita];
     const enem = createSprite();
-    enem.addAnimation('idle', this.idle);
-    enem.addAnimation('run', this.run);
-    enem.addAnimation('somer', this.somer);
-    enem.addAnimation('jump', this.jump);
-    enem.addAnimation('kick', this.kick);
-    enem.addAnimation('blank', this.blank);
+    this.addAnimations(dinos[color],enem);
     enem.changeAnimation('blank');
     enem.animation.frameDelay = 12;
     enem.setCollider('rectangle', 0, 0, 15, 16);
