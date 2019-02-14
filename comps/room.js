@@ -1,36 +1,36 @@
 class Room {
   constructor() {
     this.doux = {
-      run: loadSpriteSheet('assets/doux/run.png', 24, 24, 72),
-      idle: loadSpriteSheet('assets/doux/idle.png', 24, 24, 72),
-      somer: loadSpriteSheet('assets/doux/somer.png', 24, 24, 72),
-      jump: loadSpriteSheet('assets/doux/jump.png', 24, 24, 72),
-      kick: loadSpriteSheet('assets/doux/kick.png', 24, 24, 72),
+      run: loadSpriteSheet('assets/doux/run.png', 24, 24, 6),
+      idle: loadSpriteSheet('assets/doux/idle.png', 24, 24, 4),
+      somer: loadSpriteSheet('assets/doux/somer.png', 24, 24, 4),
+      jump: loadSpriteSheet('assets/doux/jump.png', 24, 24, 3),
+      kick: loadSpriteSheet('assets/doux/kick.png', 24, 24, 4)
     };
     this.mort = {
-      run: loadSpriteSheet('assets/mort/run.png', 24, 24, 72),
-      idle: loadSpriteSheet('assets/mort/idle.png', 24, 24, 72),
-      somer: loadSpriteSheet('assets/mort/somer.png', 24, 24, 72),
-      jump: loadSpriteSheet('assets/mort/jump.png', 24, 24, 72),
-      kick: loadSpriteSheet('assets/mort/kick.png', 24, 24, 72),
+      run: loadSpriteSheet('assets/mort/run.png', 24, 24, 6),
+      idle: loadSpriteSheet('assets/mort/idle.png', 24, 24, 4),
+      somer: loadSpriteSheet('assets/mort/somer.png', 24, 24, 4),
+      jump: loadSpriteSheet('assets/mort/jump.png', 24, 24, 3),
+      kick: loadSpriteSheet('assets/mort/kick.png', 24, 24, 4)
     };
     this.tard = {
-      run: loadSpriteSheet('assets/tard/run.png', 24, 24, 72),
-      idle: loadSpriteSheet('assets/tard/idle.png', 24, 24, 72),
-      somer: loadSpriteSheet('assets/tard/somer.png', 24, 24, 72),
-      jump: loadSpriteSheet('assets/tard/jump.png', 24, 24, 72),
-      kick: loadSpriteSheet('assets/tard/kick.png', 24, 24, 72),
+      run: loadSpriteSheet('assets/tard/run.png', 24, 24, 6),
+      idle: loadSpriteSheet('assets/tard/idle.png', 24, 24, 4),
+      somer: loadSpriteSheet('assets/tard/somer.png', 24, 24, 4),
+      jump: loadSpriteSheet('assets/tard/jump.png', 24, 24, 3),
+      kick: loadSpriteSheet('assets/tard/kick.png', 24, 24, 4)
     };
     this.vita = {
-      run: loadSpriteSheet('assets/vita/run.png', 24, 24, 72),
-      idle: loadSpriteSheet('assets/vita/idle.png', 24, 24, 72),
-      somer: loadSpriteSheet('assets/vita/somer.png', 24, 24, 72),
-      jump: loadSpriteSheet('assets/vita/jump.png', 24, 24, 72),
-      kick: loadSpriteSheet('assets/vita/kick.png', 24, 24, 72),
+      run: loadSpriteSheet('assets/vita/run.png', 24, 24, 6),
+      idle: loadSpriteSheet('assets/vita/idle.png', 24, 24, 4),
+      somer: loadSpriteSheet('assets/vita/somer.png', 24, 24, 4),
+      jump: loadSpriteSheet('assets/vita/jump.png', 24, 24, 3),
+      kick: loadSpriteSheet('assets/vita/kick.png', 24, 24, 4)
     };
 
-    this.attack = loadSpriteSheet('assets/attack.png', 24, 20, 72),
-    this.blank = loadSpriteSheet('assets/blank.png', 24, 20, 72),
+    this.attack = loadSpriteSheet('assets/attack.png', 24, 20, 5);
+    this.blank = loadSpriteSheet('assets/blank.png', 24, 20, 1);
 
     this.loadAnimations(this.doux);
     this.loadAnimations(this.mort);
@@ -102,7 +102,7 @@ class Room {
     }
 
     const mapFT = this.parseMap(fore);
-    const mapF = new Group();
+    this.mapF = new Group();
 
     for (let i = 0; i < 60; i++) {
       for (let j = 0; j < 35; j++) {
@@ -116,7 +116,7 @@ class Room {
             tile.addImage('tile',this['tile' + type[0] + mapFT[j][i]]);
           }
 
-          mapF.add(tile);
+          this.mapF.add(tile);
         }
       }
     }
@@ -147,7 +147,7 @@ class Room {
     });
     bar.set(1);
 
-    this.player = new Player(this.player,height,mapF, attSpr, bar);
+    this.player = new Player(this.player,height,this.mapF, attSpr, bar);
 
     noSmooth();
 
@@ -235,56 +235,65 @@ class Room {
 
   handleKey(key) {
     if (key == 32 || key == 87) {
-      if (this.ready) this.player.jump();
+      if (this.ready && !this.player.dead) this.player.jump();
     }
   }
 
   draw() {
     scale(2);
     background('#20263e');
+
     for (let i = 0; i < this.background.length; i++) {
       image(...this.background[i]);
     }
-    if (this.ready && !this.player.dead) {
-      this.player.draw();
+
+    if (this.ready) {
+      if (!this.player.dead) {
+        this.player.draw();
+        for (let i = 0; i < this.enemies.length; i++) {
+          if (this.enemies[i] != null) {
+            if (this.player.sp.overlap(this.enemies[i].attSpr) && this.enemies[i].attSpr.getAnimationLabel() == 'attack' && this.enemies[i].canAtt) {
+              this.enemies[i].canAtt = false;
+              this.player.hit(5);
+            }
+          }
+        }
+      }
+      const data = [
+        this.player.sp.position.x,
+        this.player.sp.position.y,
+        this.player.sp.mirrorX(),
+        animations.indexOf(this.player.sp.getAnimationLabel()),
+        this.player.sp.animation.getFrame(),
+        this.player.attSpr.position.x,
+        (this.player.attSpr.getAnimationLabel() == 'attack'),
+        this.player.hp
+      ];
       if (this.isHost) {
         for (let i = 0; i < this.len; i++) {
           this.conn.nodes[i].send({
-            enemy:[
-              [
-                this.player.sp.position.x,
-                this.player.sp.position.y,
-                this.player.sp.mirrorX(),
-                animations.indexOf(this.player.sp.getAnimationLabel()),
-                this.player.sp.animation.getFrame(),
-                this.player.attSpr.position.x,
-                (this.player.attSpr.getAnimationLabel() == 'attack'),
-                this.player.hp
-              ],
-              -1
-            ]
+            enemy:[data,-1]
           });
         }
       } else {
-        this.conn.host.send({
-          enemy:[
-            this.player.sp.position.x,
-            this.player.sp.position.y,
-            this.player.sp.mirrorX(),
-            animations.indexOf(this.player.sp.getAnimationLabel()),
-            this.player.sp.animation.getFrame(),
-            this.player.attSpr.position.x,
-            (this.player.attSpr.getAnimationLabel() == 'attack'),
-            this.player.hp
-          ]
-        });
+        if (this.player.sp.overlap(this.hostSpr.attSpr) && this.hostSpr.attSpr.getAnimationLabel() == 'attack' && this.hostSpr.canAtt) {
+          this.hostSpr.canAtt = false;
+          this.player.hit(5);
+        }
+        this.conn.host.send({enemy:data});
       }
     }
-    drawSprites();
+
+    drawSprites(this.mapF);
+    for (let i = 0; i < this.enemies.length; i++) {
+      if (this.enemies[i] != null) {
+        drawSprite(this.enemies[i].sp);
+        drawSprite(this.enemies[i].attSpr);
+      }
+    }
+    if (!this.isHost) {
+      drawSprite(this.hostSpr.sp);
+      drawSprite(this.hostSpr.attSpr);
+    }
   }
 }
-
-const letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
-const numbers = ['1','2','3','4','5','6','7','8','9','0'];
-const animations = ['idle','run','somer','jump','kick','blank'];
-const colors = ["4180AF","A9373E","F9BA48","91B036"];

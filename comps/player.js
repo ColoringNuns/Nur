@@ -15,19 +15,13 @@ class Player {
     this.dead = false;
   }
 
-  checkHit(spr) {
-    return this.attSpr.overlap(spr);
-  }
-
   hit(dmg) {
-    this.hb.stop();
     this.hp = this.hp - dmg;
     if (this.hp <= 0) {
-      this.hb.animate(0);
+      this.hp = 0;
       this.dead = true;
-    } else {
-      this.hb.animate(this.hp / 100);
     }
+    this.hb.set(this.hp / 100);
   }
 
   jump() {
@@ -87,6 +81,9 @@ class Player {
     this.attSpr.position.y = this.sp.position.y;
     this.attSpr.position.x = this.sp.position.x + (8 * this.sp.mirrorX());
     this.attSpr.mirrorX(this.sp.mirrorX());
+
+    drawSprite(this.sp);
+    drawSprite(this.attSpr);
   }
 
   getMovement() {
