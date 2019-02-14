@@ -1,7 +1,8 @@
 function preload() {
   room = new Room();
   menu = new Select('Team Select',['Join','Host']);
-  peer = new Peer('nur'+Math.floor(Math.random() * 1000), {key: 'lwjd5qra8257b9'});
+  custID = Math.floor(Math.random() * 1000);
+  peer = new Peer('nur'+custID, {key: 'lwjd5qra8257b9'});
   conn = { nodes:[], host:null };
   peerID = null;
   isHost = false;
@@ -65,7 +66,7 @@ function draw() {
           alert('Not Enough Players.');
         }
       } else if (gameState == 'JOINGAME') {
-        conn.host = peer.connect(chosen);
+        conn.host = peer.connect('nur' + chosen);
         conn.host.on('open', (id) => {
           menu = new Alert("Host is making selections.");
           menu.initialize(width,height);
@@ -82,7 +83,7 @@ function draw() {
     } else {
       if (gameState == 'MAPSELECT') {
         if (isHost) {
-          menu.label = "ID: " + peerID + ", " + (conn.nodes.length + 1) + " Players";
+          menu.label = "ID: " + custID + ", " + getNumPlayers(conn.nodes.length);
         }
       }
       menu.draw();
@@ -90,4 +91,8 @@ function draw() {
   } else {
     room.draw();
   }
+}
+
+function getNumPlayers(len) {
+  return (len + 1) + " Player" + (len > 0 ? "s" : "");
 }
