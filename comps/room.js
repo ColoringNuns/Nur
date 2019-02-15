@@ -16,11 +16,13 @@ class Room {
     loadAnimation(this.blank);
 
     this.background = [];
+    this.loadTiles('forest');
+    this.loadTiles('metal');
+  }
+
+  loadTiles(name) {
     for (let i = 1; i < 26; i++) {
-      this['tilef' + letters[i - 1]] = loadImage('assets/tiles/forest/tile' + i + '.jpg');
-    }
-    for (let i = 1; i < 26; i++) {
-      this['tilem' + letters[i - 1]] = loadImage('assets/tiles/metal/tile' + i + '.jpg');
+      this['tile' + name.charAt(0) + letters[i - 1]] = loadImage('maps/' + name + '/tiles/tile' + i + '.jpg');
     }
   }
 
