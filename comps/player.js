@@ -54,6 +54,7 @@ class Player {
         this.sp.position.x = 50;
         this.xspd = 0;
         this.sp.velocity.y = 0;
+        this.jumpCounter = 0;
       }
     }
 

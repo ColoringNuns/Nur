@@ -1,33 +1,9 @@
 class Room {
   constructor() {
-    this.doux = {
-      run: loadSpriteSheet('assets/doux/run.png', 24, 24, 6),
-      idle: loadSpriteSheet('assets/doux/idle.png', 24, 24, 4),
-      somer: loadSpriteSheet('assets/doux/somer.png', 24, 24, 4),
-      jump: loadSpriteSheet('assets/doux/jump.png', 24, 24, 3),
-      kick: loadSpriteSheet('assets/doux/kick.png', 24, 24, 4)
-    };
-    this.mort = {
-      run: loadSpriteSheet('assets/mort/run.png', 24, 24, 6),
-      idle: loadSpriteSheet('assets/mort/idle.png', 24, 24, 4),
-      somer: loadSpriteSheet('assets/mort/somer.png', 24, 24, 4),
-      jump: loadSpriteSheet('assets/mort/jump.png', 24, 24, 3),
-      kick: loadSpriteSheet('assets/mort/kick.png', 24, 24, 4)
-    };
-    this.tard = {
-      run: loadSpriteSheet('assets/tard/run.png', 24, 24, 6),
-      idle: loadSpriteSheet('assets/tard/idle.png', 24, 24, 4),
-      somer: loadSpriteSheet('assets/tard/somer.png', 24, 24, 4),
-      jump: loadSpriteSheet('assets/tard/jump.png', 24, 24, 3),
-      kick: loadSpriteSheet('assets/tard/kick.png', 24, 24, 4)
-    };
-    this.vita = {
-      run: loadSpriteSheet('assets/vita/run.png', 24, 24, 6),
-      idle: loadSpriteSheet('assets/vita/idle.png', 24, 24, 4),
-      somer: loadSpriteSheet('assets/vita/somer.png', 24, 24, 4),
-      jump: loadSpriteSheet('assets/vita/jump.png', 24, 24, 3),
-      kick: loadSpriteSheet('assets/vita/kick.png', 24, 24, 4)
-    };
+    this.doux = this.loadSprites('doux');
+    this.mort = this.loadSprites('mort');
+    this.tard = this.loadSprites('tard');
+    this.vita = this.loadSprites('vita');
 
     this.attack = loadSpriteSheet('assets/attack.png', 24, 20, 5);
     this.blank = loadSpriteSheet('assets/blank.png', 24, 20, 1);
@@ -46,6 +22,16 @@ class Room {
     for (let i = 1; i < 26; i++) {
       this['tilem' + letters[i - 1]] = loadImage('assets/tiles/metal/tile' + i + '.jpg');
     }
+  }
+
+  loadSprites(name) {
+    return {
+      run: loadSpriteSheet('assets/' + name + '/run.png', 24, 24, 6),
+      idle: loadSpriteSheet('assets/' + name + '/idle.png', 24, 24, 4),
+      somer: loadSpriteSheet('assets/' + name + '/somer.png', 24, 24, 4),
+      jump: loadSpriteSheet('assets/' + name + '/jump.png', 24, 24, 3),
+      kick: loadSpriteSheet('assets/' + name + '/kick.png', 24, 24, 4)
+    };
   }
 
   loadAnimations(anims) {
@@ -154,11 +140,12 @@ class Room {
     this.ready = true;
   }
 
-  initialize(height, type, conn, isHost, len, index) {
+  initialize(type, conn, isHost, len, index) {
     this.ready = false;
     this.conn = conn;
     this.isHost = isHost;
     this.len = len;
+    this.cameraShake = 0;
 
     this.enemies = [];
     let k = 0;
@@ -242,6 +229,11 @@ class Room {
   draw() {
     scale(2);
     background('#20263e');
+    if (this.cameraShake != 0) {
+      camera.position.x = (Math.random() * 5) + width / 2;
+      camera.position.y = (Math.random() * 5) + height / 2;
+      this.cameraShake -= 1;
+    }
 
     for (let i = 0; i < this.background.length; i++) {
       image(...this.background[i]);
@@ -252,11 +244,22 @@ class Room {
         this.player.draw();
         for (let i = 0; i < this.enemies.length; i++) {
           if (this.enemies[i] != null) {
+            for (let j = 0; j < this.enemies.length; j++) {
+              if (this.enemies[j] != null && i != j) {
+                if (this.enemies[j].sp.overlap(this.enemies[i].attSpr) && this.enemies[i].attSpr.getAnimationLabel() == 'attack' && this.enemies[i].canAtt) {
+                  this.cameraShake = 10;
+                }
+              }
+            }
+            if (this.enemies[i].sp.overlap(this.player.attSpr) && this.player.attSpr.getAnimationLabel() == 'attack') {
+              this.cameraShake = 10;
+            }
             if (this.player.sp.overlap(this.enemies[i].attSpr) && this.enemies[i].attSpr.getAnimationLabel() == 'attack' && this.enemies[i].canAtt) {
               this.enemies[i].canAtt = false;
               this.player.sp.velocity.y = -4;
               this.player.xspd = 0.25 * this.player.mult * (this.enemies[i].sp.position.x > this.player.sp.position.x ? -1 : 1);
               this.player.mult++;
+              this.cameraShake = 15;
             }
           }
         }
@@ -278,11 +281,22 @@ class Room {
           });
         }
       } else {
+        for (let j = 0; j < this.enemies.length; j++) {
+          if (this.enemies[j] != null) {
+            if (this.enemies[j].sp.overlap(this.hostSpr.attSpr) && this.hostSpr.attSpr.getAnimationLabel() == 'attack' && this.hostSpr.canAtt) {
+              this.cameraShake = 10;
+            }
+          }
+        }
+        if (this.hostSpr.sp.overlap(this.player.attSpr) && this.player.attSpr.getAnimationLabel() == 'attack') {
+          this.cameraShake = 10;
+        }
         if (this.player.sp.overlap(this.hostSpr.attSpr) && this.hostSpr.attSpr.getAnimationLabel() == 'attack' && this.hostSpr.canAtt) {
           this.hostSpr.canAtt = false;
           this.player.sp.velocity.y = -4;
           this.player.xspd = 0.25 * this.player.mult * (this.hostSpr.sp.position.x > this.player.sp.position.x ? -1 : 1);
           this.player.mult++;
+          this.cameraShake = 15;
         }
         this.conn.host.send({enemy:data});
       }

@@ -60,7 +60,7 @@ function draw() {
           for (let i = 0; i < conn.nodes.length; i++) {
             conn.nodes[i].send({ begin:[chosen, conn.nodes.length, i] });
           }
-          room.initialize(width, chosen, conn, isHost, conn.nodes.length, -1);
+          room.initialize(chosen, conn, isHost, conn.nodes.length, -1);
           gameState = 'INGAME';
         } else {
           alert('Not Enough Players.');
@@ -73,7 +73,7 @@ function draw() {
           gameState = 'MAPSELECT';
           conn.host.on('data', function(data) {
             if (data.begin != null) {
-              room.initialize(width, data.begin[0], conn, isHost, data.begin[1], data.begin[2]);
+              room.initialize(data.begin[0], conn, isHost, data.begin[1], data.begin[2]);
               gameState = 'INGAME';
             }
           });
