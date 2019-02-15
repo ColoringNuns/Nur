@@ -296,7 +296,7 @@ class Room {
         if (this.player.sp.overlap(this.hostSpr.attSpr) && this.hostSpr.attSpr.getAnimationLabel() == 'attack' && this.hostSpr.canAtt) {
           this.hostSpr.canAtt = false;
           this.player.sp.velocity.y = -4;
-          this.player.xspd = 0.25 * this.player.mult * (this.hostSpr.sp.position.x > this.player.sp.position.x ? -1 : 1);
+          this.player.xspd = 0.4 * this.player.mult * (this.hostSpr.sp.position.x > this.player.sp.position.x ? -1 : 1);
           this.player.mult++;
           this.cameraShake = 15;
         }
