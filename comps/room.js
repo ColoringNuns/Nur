@@ -103,6 +103,7 @@ class Room {
           } else {
             tile.addImage('tile',this['tile' + type[0] + mapFT[j][i]]);
           }
+          tile.isGround = (j == 0 || mapFT[j-1][i] == "-");
 
           this.mapF.add(tile);
         }
@@ -229,6 +230,36 @@ class Room {
   }
 
   draw() {
+    for (let i = 0; i < this.background.length; i++) {
+      image(...this.background[i]);
+    }
+    drawSprites(this.mapF);
+
+    for (let i = 0; i < this.enemies.length; i++) {
+      if (this.enemies[i] != null) {
+        drawSprite(this.enemies[i].sp);
+      }
+    }
+    if (!this.isHost) {
+      drawSprite(this.hostSpr.sp);
+    }
+    if (this.ready) {
+      drawSprite(this.player.sp);
+    }
+    for (let i = 0; i < this.enemies.length; i++) {
+      if (this.enemies[i] != null) {
+        drawSprite(this.enemies[i].attSpr);
+      }
+    }
+    if (!this.isHost) {
+      drawSprite(this.hostSpr.attSpr);
+    }
+    if (this.ready) {
+      drawSprite(this.player.attSpr);
+    }
+  }
+
+  update() {
     scale(2);
     background('#20263e');
     if (this.cameraShake != 0) {
@@ -237,13 +268,9 @@ class Room {
       this.cameraShake -= 1;
     }
 
-    for (let i = 0; i < this.background.length; i++) {
-      image(...this.background[i]);
-    }
-
     if (this.ready) {
       if (!this.player.dead) {
-        this.player.draw();
+        this.player.update();
         for (let i = 0; i < this.enemies.length; i++) {
           if (this.enemies[i] != null) {
             for (let j = 0; j < this.enemies.length; j++) {
@@ -258,7 +285,7 @@ class Room {
             }
             if (this.player.sp.overlap(this.enemies[i].attSpr) && this.enemies[i].attSpr.getAnimationLabel() == 'attack' && this.enemies[i].canAtt) {
               this.enemies[i].canAtt = false;
-              this.player.sp.velocity.y = -4;
+              this.player.yspd = -4;
               this.player.xspd = 0.25 * this.player.mult * (this.enemies[i].sp.position.x > this.player.sp.position.x ? -1 : 1);
               this.player.mult++;
               this.cameraShake = 15;
@@ -295,25 +322,13 @@ class Room {
         }
         if (this.player.sp.overlap(this.hostSpr.attSpr) && this.hostSpr.attSpr.getAnimationLabel() == 'attack' && this.hostSpr.canAtt) {
           this.hostSpr.canAtt = false;
-          this.player.sp.velocity.y = -4;
+          this.player.yspd = -4;
           this.player.xspd = 0.4 * this.player.mult * (this.hostSpr.sp.position.x > this.player.sp.position.x ? -1 : 1);
           this.player.mult++;
           this.cameraShake = 15;
         }
         this.conn.host.send({enemy:data});
       }
-    }
-
-    drawSprites(this.mapF);
-    for (let i = 0; i < this.enemies.length; i++) {
-      if (this.enemies[i] != null) {
-        drawSprite(this.enemies[i].sp);
-        drawSprite(this.enemies[i].attSpr);
-      }
-    }
-    if (!this.isHost) {
-      drawSprite(this.hostSpr.sp);
-      drawSprite(this.hostSpr.attSpr);
     }
   }
 }

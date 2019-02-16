@@ -15,6 +15,7 @@ class Player {
     this.hb = bar;
     this.dead = false;
     this.xspd = 0;
+    this.yspd = 0;
   }
 
   fell() {
@@ -29,7 +30,7 @@ class Player {
 
   jump() {
     if (this.onGround() || this.jumpCounter < 2) {
-      this.sp.velocity.y = -4;
+      this.yspd = -4;
       this.jumpCounter++;
     }
   }
@@ -37,23 +38,25 @@ class Player {
   onGround() {
     const map = this.map.toArray();
     for (let i = 0; i < map.length; i++) {
-      if (this.sp.position.y + 16 >= map[i].position.y && this.sp.position.y + 8 < map[i].position.y) {
-        if (this.sp.position.x + 9 > map[i].position.x && this.sp.position.x - 9 < map[i].position.x) {
-          return true;
-        }
+      if (this.sp.overlap(map[i]) && this.touchGround(this.sp,map[i])) {
+        return true;
       }
     }
     return false;
   }
 
-  draw() {
-    if (this.sp.position.y - 20 > this.height) {
+  touchGround(sprite,tile) {
+    return (sprite.position.y + 6 < tile.position.y - 4 && tile.isGround);
+  }
+
+  update() {
+    if (this.sp.position.y > this.height) {
       this.fell();
       if (this.lives > 0) {
         this.sp.position.y = this.height / 2 - 200;
         this.sp.position.x = 50;
         this.xspd = 0;
-        this.sp.velocity.y = 0;
+        this.yspd = 0;
         this.jumpCounter = 0;
       }
     }
@@ -69,13 +72,14 @@ class Player {
     const movement = this.getMovement();
     this.sp.position.x += movement + this.xspd;
     this.xspd *= 0.95;
+    this.sp.position.y += this.yspd;
+    this.yspd += 0.2;
 
-    this.sp.velocity.y += 0.2;
     this.sp.collide(this.map, (spr1, spr2) => {
-      const onGround = this.onGround();
+      const onGround = this.touchGround(spr1,spr2);
 
-      if (this.sp.velocity.y > 0 && onGround) {
-        this.sp.velocity.y = 0;
+      if (this.yspd > 0 && onGround) {
+        this.yspd = 0;
         this.xspd = 0;
         this.jumpCounter = 0;
       }
@@ -87,9 +91,6 @@ class Player {
     this.attSpr.position.y = this.sp.position.y;
     this.attSpr.position.x = this.sp.position.x + (8 * this.sp.mirrorX());
     this.attSpr.mirrorX(this.sp.mirrorX());
-
-    drawSprite(this.sp);
-    drawSprite(this.attSpr);
   }
 
   getMovement() {
@@ -121,9 +122,9 @@ class Player {
         if (this.attDelay == 0) {
           this.sp.changeAnimation('jump');
           this.sp.animation.stop();
-          if (this.sp.velocity.y < 0) {
+          if (this.yspd < 0) {
             this.sp.animation.changeFrame(1);
-          } else if (this.sp.velocity.y < 1) {
+          } else if (this.yspd < 1) {
             this.sp.animation.changeFrame(0);
           } else {
             this.sp.animation.changeFrame(2);
@@ -134,7 +135,7 @@ class Player {
       }
     }
     if (keyIsDown(83)) {
-      this.sp.velocity.y += 0.2;
+      this.yspd += 0.2;
     }
     return finalMovement;
   }

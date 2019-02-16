@@ -14,7 +14,7 @@ function preload() {
       conn.nodes.push(c);
     }
     if (conn.nodes.length >= 3) {
-      menu.label = "Room is full.";
+      menu.label = "Room Full";
     }
   });
 }
@@ -53,7 +53,7 @@ function draw() {
             gameState = 'JOINGAME';
           }
         } else {
-          menu.label = 'Connection err; try again.';
+          menu.label = 'Connection Error';
         }
       } else if (gameState == 'MAPSELECT') {
         if (conn.nodes.length != 0 && isHost) {
@@ -68,7 +68,7 @@ function draw() {
       } else if (gameState == 'JOINGAME') {
         conn.host = peer.connect('nur' + chosen);
         conn.host.on('open', (id) => {
-          menu = new Alert("Host is making selections.");
+          menu = new Alert("Host's making selections");
           menu.initialize(width,height);
           gameState = 'MAPSELECT';
           conn.host.on('data', function(data) {
@@ -83,16 +83,13 @@ function draw() {
     } else {
       if (gameState == 'MAPSELECT') {
         if (isHost) {
-          menu.label = "ID: " + custID + ", " + getNumPlayers(conn.nodes.length);
+          menu.label = "ID: " + custID + ", " + (conn.nodes.length + 1) + " Player" + (conn.nodes.length > 0 ? "s" : "");
         }
       }
       menu.draw();
     }
   } else {
+    room.update();
     room.draw();
   }
-}
-
-function getNumPlayers(len) {
-  return (len + 1) + " Player" + (len > 0 ? "s" : "");
 }
