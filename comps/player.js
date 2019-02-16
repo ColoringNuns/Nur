@@ -134,9 +134,6 @@ class Player {
         this.currAnime = 'somer';
       }
     }
-    if (keyIsDown(83)) {
-      this.yspd += 0.2;
-    }
     return finalMovement;
   }
 
