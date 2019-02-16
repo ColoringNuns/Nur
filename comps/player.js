@@ -73,12 +73,12 @@ class Player {
     this.sp.position.x += movement + this.xspd;
     this.xspd *= 0.95;
     this.sp.position.y += this.yspd;
-    this.yspd += (keyIsDown(83) ? 0.4 : 0.2);
+    this.yspd = Math.min(this.yspd + (keyIsDown(83) ? 0.4 : 0.2), 10);
 
     this.sp.collide(this.map, (spr1, spr2) => {
       const onGround = this.touchGround(spr1,spr2);
 
-      if (this.yspd > 0 && onGround) {
+      if (this.yspd >= 0 && onGround) {
         this.yspd = 0;
         this.xspd = 0;
         this.jumpCounter = 0;
