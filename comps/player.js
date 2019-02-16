@@ -69,11 +69,11 @@ class Player {
       }
     };
 
-    const movement = this.getMovement();
+    const movement = this.horizMov();
     this.sp.position.x += movement + this.xspd;
     this.xspd *= 0.95;
     this.sp.position.y += this.yspd;
-    this.yspd += 0.2;
+    this.yspd += (keyIsDown(83) ? 0.4 : 0.2);
 
     this.sp.collide(this.map, (spr1, spr2) => {
       const onGround = this.touchGround(spr1,spr2);
@@ -93,7 +93,7 @@ class Player {
     this.attSpr.mirrorX(this.sp.mirrorX());
   }
 
-  getMovement() {
+  horizMov() {
     let finalMovement = 0;
     if (keyIsDown(65)) {
       this.currAnime = 'run';
