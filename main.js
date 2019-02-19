@@ -2,7 +2,7 @@ function preload() {
   room = new Room();
   menu = new Select('Team Select',['Join','Host']);
   custID = Math.floor(Math.random() * 1000);
-  peer = new Peer('nur'+custID, {key: 'lwjd5qra8257b9'});
+  peer = new Peer('nurnunscf'+custID, {key: 'lwjd5qra8257b9'});
   conn = { nodes:[], host:null };
   peerID = null;
   isHost = false;
@@ -20,7 +20,18 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(960,560);
+  const screenRatio = windowWidth / windowHeight;
+  const aspectRatio = 480 / 280;
+  let wid = 480;
+  let hei = 280;
+  if (screenRatio > aspectRatio) {
+		hei = windowHeight;
+		wid = (480 * windowHeight) / 280;
+	} else {
+		wid = windowWidth;
+		hei = (280 * windowWidth) / 480;
+	}
+  createCanvas(wid,hei);
   frameRate(60);
   textFont(loadFont('assets/Prstart.ttf'));
   menu.initialize(width, height);
@@ -43,7 +54,7 @@ function draw() {
       if (gameState == 'PEER') {
         if (peerID !== null) {
           if (chosen == "host") {
-            menu.reset('Map Select',['Forest','Metal']);
+            menu.reset('Map Select',maps);
             isHost = true;
             conn.host = peerID;
             gameState = 'MAPSELECT';
@@ -53,22 +64,20 @@ function draw() {
             gameState = 'JOINGAME';
           }
         } else {
-          menu.label = 'Connection Error';
+          menu.label = 'Conn Err';
         }
       } else if (gameState == 'MAPSELECT') {
         if (conn.nodes.length != 0 && isHost) {
           for (let i = 0; i < conn.nodes.length; i++) {
-            conn.nodes[i].send({ begin:[chosen, conn.nodes.length, i] });
+            conn.nodes[i].send({ begin:[chosen.toLowerCase(), conn.nodes.length, i] });
           }
           room.initialize(chosen, conn, isHost, conn.nodes.length, -1);
           gameState = 'INGAME';
-        } else {
-          alert('Not Enough Players.');
         }
       } else if (gameState == 'JOINGAME') {
-        conn.host = peer.connect('nur' + chosen);
+        conn.host = peer.connect('nurnunscf' + chosen);
         conn.host.on('open', (id) => {
-          menu = new Alert("Host's making selections");
+          menu = new Alert("Awaiting Host");
           menu.initialize(width,height);
           gameState = 'MAPSELECT';
           conn.host.on('data', function(data) {
@@ -83,7 +92,7 @@ function draw() {
     } else {
       if (gameState == 'MAPSELECT') {
         if (isHost) {
-          menu.label = "ID: " + custID + ", " + (conn.nodes.length + 1) + " Player" + (conn.nodes.length > 0 ? "s" : "");
+          menu.label = "ID" + custID + " " + (conn.nodes.length + 1) + "P";
         }
       }
       menu.draw();

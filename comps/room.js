@@ -15,14 +15,12 @@ class Room {
     loadAnimation(this.attack);
     loadAnimation(this.blank);
 
-    this.background = [];
-    this.loadTiles('forest');
-    this.loadTiles('metal');
+    this.loadMaps();
   }
 
-  loadTiles(name) {
-    for (let i = 1; i < 26; i++) {
-      this['tile' + name.charAt(0) + letters[i - 1]] = loadImage('maps/' + name + '/tiles/tile' + i + '.jpg');
+  loadMaps() {
+    for (let i = 0; i < maps.length; i++) {
+      this[maps[i].toLowerCase()] = loadImage('maps/'+maps[i].toLowerCase()+'/bg.png');
     }
   }
 
@@ -53,17 +51,6 @@ class Room {
     return vt;
   }
 
-  getReverse(img) {
-    const rev = createImage(img.width, img.height);
-    for (let i = 0; i < img.width; i++) {
-      for (let j = 0; j < img.height; j++) {
-        rev.set(img.width - i - 1, j, img.get(i,j));
-      }
-    }
-    rev.updatePixels();
-    return rev;
-  }
-
   addAnimations(dino,obj) {
     obj.addAnimation('idle', dino.idle);
     obj.addAnimation('run', dino.run);
@@ -73,56 +60,35 @@ class Room {
     obj.addAnimation('blank', this.blank);
   }
 
-  generate(fore,back,type,index) {
-    const mapBT = this.parseMap(back);
-    this.background = [];
+  generate(map,type,index) {
+    map = this.parseMap(map);
+    const obst = new Group();
+    const spawn = {x:0,y:0};
 
-    for (let i = 0; i < 60; i++) {
-      for (let j = 0; j < 35; j++) {
-        if (mapBT[j][i] != "-") {
-          if (mapBT[j][i] == mapBT[j][i].toUpperCase()) {
-            this.background.push([this.getReverse(this['tile' + type[0] + mapBT[j][i].toLowerCase()]), i*8, j*8]);
-          } else {
-            this.background.push([this['tile' + type[0] + mapBT[j][i]], i*8, j*8]);
-          }
+    for (let i = 0; i < map.length; i++) {
+      if (map[i][0] == "spawn") {
+        if (parseInt(map[i][1],10) == index) {
+          spawn.x = parseInt(map[i][2],10);
+          spawn.y = parseInt(map[i][3],10);
         }
-      }
-    }
-
-    const mapFT = this.parseMap(fore);
-    this.mapF = new Group();
-
-    for (let i = 0; i < 60; i++) {
-      for (let j = 0; j < 35; j++) {
-        if (mapFT[j][i] != "-") {
-          let tile = createSprite(i*8 + 4, j*8 + 4, 8, 8);
-          tile.depth = 0;
-          if (mapFT[j][i] == mapFT[j][i].toUpperCase()) {
-            tile.addImage('tile',this['tile' + type[0] + mapFT[j][i].toLowerCase()]);
-            tile.mirrorX(-1);
-          } else {
-            tile.addImage('tile',this['tile' + type[0] + mapFT[j][i]]);
-          }
-          tile.isGround = (j == 0 || mapFT[j-1][i] == "-");
-
-          this.mapF.add(tile);
-        }
+      } else {
+        let tile = createSprite(parseInt(map[i][1],10),parseInt(map[i][2],10));
+        tile.setCollider(map[i][0],0,0,parseInt(map[i][3],10),parseInt(map[i][4],10));
+        obst.add(tile);
       }
     }
 
     const dinos = [this.doux,this.mort,this.tard,this.vita];
-    this.player = createSprite(50, height / 2 - 200);
+    this.player = createSprite(spawn.x, spawn.y);
     this.addAnimations(dinos[index],this.player);
     this.player.changeAnimation('idle');
     this.player.animation.frameDelay = 12;
-    this.player.setCollider('rectangle', 0, 0, 15, 16);
-    this.player.depth = 1;
+    this.player.setCollider('rectangle', 0, 0, 16, 16);
 
     const attSpr = createSprite();
     attSpr.addAnimation('attack', this.attack);
     attSpr.addAnimation('blank', this.blank);
     attSpr.setCollider('rectangle', 0, 0, 20, 20);
-    attSpr.depth = 2;
     delete this.attack;
     delete this.blank;
 
@@ -136,7 +102,7 @@ class Room {
     });
     bar.set(1);
 
-    this.player = new Player(this.player,height,this.mapF, attSpr, bar);
+    this.player = new Player(this.player, height, obst, attSpr, bar, spawn);
 
     noSmooth();
 
@@ -149,6 +115,7 @@ class Room {
     this.isHost = isHost;
     this.len = len;
     this.cameraShake = 0;
+    this.bg = this[type];
 
     this.enemies = [];
     let k = 0;
@@ -187,11 +154,9 @@ class Room {
       });
     }
 
-    fetch('maps/'+ type +'/fore.txt')
+    fetch('maps/'+ type +'/data.txt')
       .then(response => response.text())
-      .then(fore => fetch('maps/'+ type +'/back.txt')
-        .then(response => response.text())
-        .then(back => this.generate(fore,back,type,(index != -1 ? index : len))))
+      .then(fore => this.generate(fore,type,(index != -1 ? index : len)))
   }
 
   createEnemy(index,color) {
@@ -201,14 +166,12 @@ class Room {
     enem.changeAnimation('blank');
     enem.animation.frameDelay = 12;
     enem.setCollider('rectangle', 0, 0, 15, 16);
-    enem.depth = 1;
 
     const attSpr = createSprite();
     attSpr.addAnimation('attack', this.attack);
     attSpr.addAnimation('blank', this.blank);
     attSpr.changeAnimation('blank');
     attSpr.setCollider('rectangle', 0, 0, 20, 20);
-    attSpr.depth = 2;
 
     const bar = new ProgressBar.Line('#plr' + index + 'bar', {
       strokeWidth: 5,
@@ -230,10 +193,10 @@ class Room {
   }
 
   draw() {
-    for (let i = 0; i < this.background.length; i++) {
-      image(...this.background[i]);
-    }
-    drawSprites(this.mapF);
+    scale(width / 480);
+    background('#20263e');
+
+    image(this.bg,0,0);
 
     for (let i = 0; i < this.enemies.length; i++) {
       if (this.enemies[i] != null) {
@@ -260,8 +223,6 @@ class Room {
   }
 
   update() {
-    scale(2);
-    background('#20263e');
     if (this.cameraShake != 0) {
       camera.position.x = (Math.random() * 5) + width / 2;
       camera.position.y = (Math.random() * 5) + height / 2;

@@ -1,5 +1,5 @@
 class Player {
-  constructor(sprite, height, map, attSpr, bar) {
+  constructor(sprite, height, map, attSpr, bar, spawn) {
     this.sp = sprite;
     this.jumpCounter = 0;
     this.attDelay = 0;
@@ -16,6 +16,7 @@ class Player {
     this.dead = false;
     this.xspd = 0;
     this.yspd = 0;
+    this.spawn = spawn;
   }
 
   fell() {
@@ -29,32 +30,15 @@ class Player {
   }
 
   jump() {
-    if (this.onGround() || this.jumpCounter < 2) {
-      this.yspd = -4;
-      this.jumpCounter++;
-    }
-  }
-
-  onGround() {
-    const map = this.map.toArray();
-    for (let i = 0; i < map.length; i++) {
-      if (this.sp.overlap(map[i]) && this.touchGround(this.sp,map[i])) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  touchGround(sprite,tile) {
-    return (sprite.position.y + 6 < tile.position.y - 4 && tile.isGround);
+    if (this.jumpCounter < 2) { this.yspd = -4; this.jumpCounter++; }
   }
 
   update() {
     if (this.sp.position.y > this.height) {
       this.fell();
       if (this.lives > 0) {
-        this.sp.position.y = this.height / 2 - 200;
-        this.sp.position.x = 50;
+        this.sp.position.y = this.spawn.y;
+        this.sp.position.x = this.spawn.x;
         this.xspd = 0;
         this.yspd = 0;
         this.jumpCounter = 0;
@@ -73,12 +57,10 @@ class Player {
     this.sp.position.x += movement + this.xspd;
     this.xspd *= 0.95;
     this.sp.position.y += this.yspd;
-    this.yspd = Math.min(this.yspd + (keyIsDown(83) ? 0.4 : 0.2), 10);
+    this.yspd = Math.min(this.yspd + (keyIsDown(83) ? 0.4 : 0.2), 7);
 
     this.sp.collide(this.map, (spr1, spr2) => {
-      const onGround = this.touchGround(spr1,spr2);
-
-      if (this.yspd >= 0 && onGround) {
+      if (this.yspd >= 0 && spr1.touching.bottom && !(spr1.touching.left || spr1.touching.right)) {
         this.yspd = 0;
         this.xspd = 0;
         this.jumpCounter = 0;
@@ -116,7 +98,7 @@ class Player {
     } else {
       this.sprintAdd = 2;
     }
-    if (!this.onGround()) {
+    if (!this.sp.overlap(this.map)) {
       if (this.jumpCounter == 1) {
         this.currAnime = 'jump';
         if (this.attDelay == 0) {

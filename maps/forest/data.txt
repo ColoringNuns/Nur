@@ -1,0 +1,5 @@
+spawn,0,120,0
+spawn,2,200,0
+spawn,3,280,0
+spawn,1,360,0
+rectangle,240,180,350,80
