@@ -3,18 +3,16 @@ class Prompt {
     this.label = label;
     this.text = '';
     this.allow = false;
-  }
-
-  initialize(width, height) {
-    this.width = width;
-    this.height = height;
+    this.entered = false;
   }
 
   handleKey(key) {
     if (key == 8) this.text = this.text.substring(0, this.text.length - 1);
     else if (key != 13) {
-      const lett = String.fromCharCode(key).toLowerCase();
-      this.text += (letters.indexOf(lett) != -1 || numbers.indexOf(lett) != -1 ? lett : '');
+      if (!this.entered) {
+        const lett = String.fromCharCode(key).toLowerCase();
+        this.text += (letters.indexOf(lett) != -1 || numbers.indexOf(lett) != -1 ? lett : '');
+      }
     }
   }
 
@@ -22,8 +20,9 @@ class Prompt {
     if (!keyIsDown(13)) {
       this.allow = true;
     }
-    if (keyIsDown(13) && this.allow) {
+    if (keyIsDown(13) && this.allow && !this.entered) {
       this.allow = false;
+      this.entered = true;
       return this.text;
     }
     return false;
@@ -34,10 +33,10 @@ class Prompt {
     fill('#fff');
     textSize(20);
     textAlign(RIGHT, BOTTOM);
-    text(this.text, this.width - 20, this.height - 10);
+    text(this.text, width - 20, height - 10);
 
     textSize(30);
     textAlign(LEFT, BOTTOM);
-    text(this.label, 20, this.height - 10);
+    text(this.label, 20, height - 10);
   }
 }

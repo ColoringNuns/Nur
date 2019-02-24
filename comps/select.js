@@ -12,11 +12,6 @@ class Select {
     this.current = 0;
   }
 
-  initialize(width, height) {
-    this.width = width;
-    this.height = height;
-  }
-
   handleKey(key) {
     if (key == 87) this.current = (this.current + 1) % this.options.length;
     if (key == 83) this.current = (this.current - 1 < 0 ? this.options.length - 1 : this.current - 1);
@@ -39,11 +34,11 @@ class Select {
     textSize(20);
     textAlign(RIGHT, BOTTOM);
     for (let i = 0; i < this.options.length; i++) {
-      text((this.options[this.current] == this.options[i] ? '> ' : '') + this.options[i], this.width - 20, this.height - 10 - (30 * i));
+      text((this.options[this.current] == this.options[i] ? '> ' : '') + this.options[i], width - 20, height - 10 - (30 * i));
     }
 
     textSize(30);
     textAlign(LEFT, BOTTOM);
-    text(this.label, 20, this.height - 10);
+    text(this.label, 20, height - 10);
   }
 }

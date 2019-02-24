@@ -226,7 +226,10 @@ class Room {
     if (this.cameraShake != 0) {
       camera.position.x = (Math.random() * 5) + width / 2;
       camera.position.y = (Math.random() * 5) + height / 2;
-      this.cameraShake -= 1;
+      this.cameraShake--;
+    } else {
+      camera.position.x = width / 2;
+      camera.position.y = height / 2;
     }
 
     if (this.ready) {

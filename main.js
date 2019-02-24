@@ -1,6 +1,6 @@
 function preload() {
   room = new Room();
-  menu = new Select('Team Select',['Join','Host']);
+  menu = new Select('Nur',['Join','Host']);
   custID = Math.floor(Math.random() * 1000);
   peer = new Peer('nurnunscf'+custID, {key: 'lwjd5qra8257b9'});
   conn = { nodes:[], host:null };
@@ -19,22 +19,26 @@ function preload() {
   });
 }
 
-function setup() {
+function getSize() {
   const screenRatio = windowWidth / windowHeight;
-  const aspectRatio = 480 / 280;
-  let wid = 480;
-  let hei = 280;
+  const aspectRatio = 12 / 7;
+  let wid = 12;
+  let hei = 7;
   if (screenRatio > aspectRatio) {
 		hei = windowHeight;
-		wid = (480 * windowHeight) / 280;
+		wid = (12 * windowHeight) / 7;
 	} else {
 		wid = windowWidth;
-		hei = (280 * windowWidth) / 480;
+		hei = (7 * windowWidth) / 12;
 	}
-  createCanvas(wid,hei);
+  return {wid:wid,hei:hei};
+}
+
+function setup() {
+  const size = getSize();
+  createCanvas(size.wid, size.hei);
   frameRate(60);
   textFont(loadFont('assets/Prstart.ttf'));
-  menu.initialize(width, height);
   gameState = 'PEER';
 }
 
@@ -60,7 +64,6 @@ function draw() {
             gameState = 'MAPSELECT';
           } else if (chosen == "join") {
             menu = new Prompt("Game ID:");
-            menu.initialize(width,height);
             gameState = 'JOINGAME';
           }
         } else {
@@ -78,7 +81,6 @@ function draw() {
         conn.host = peer.connect('nurnunscf' + chosen);
         conn.host.on('open', (id) => {
           menu = new Alert("Awaiting Host");
-          menu.initialize(width,height);
           gameState = 'MAPSELECT';
           conn.host.on('data', function(data) {
             if (data.begin != null) {
