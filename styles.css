@@ -1,8 +1,8 @@
 @font-face {
-  font-family: 'Prstart';
+  font-family: 'start';
   font-style: normal;
   font-weight: normal;
-  src: local('Prstart'), url('assets/Prstart.ttf') format('truetype');
+  src: local('start'), url('assets/start.ttf') format('truetype');
 }
 
 head, body {
@@ -14,7 +14,7 @@ head, body {
   overflow: hidden;
   background-color: #232323;
   color: white;
-  font-family: 'Prstart';
+  font-family: 'start';
 }
 
 canvas {

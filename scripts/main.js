@@ -38,7 +38,7 @@ function setup() {
   const size = getSize();
   createCanvas(size.wid, size.hei);
   frameRate(60);
-  textFont(loadFont('assets/Prstart.ttf'));
+  textFont(loadFont('assets/start.ttf'));
   gameState = 'PEER';
 }
 
