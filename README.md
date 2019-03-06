@@ -10,6 +10,14 @@ It also uses the p5JS library to handle the graphical aspect of the game.
 Use <kbd>W</kbd>, <kbd>S</kbd> and <kbd>ENTER</kbd> to navigate the menus. <br>
 Use <kbd>WASD</kbd> to move, <kbd>H</kbd> to dash and <kbd>J</kbd> to attack.
 
+# Upcoming
+
+Note that you can read the issues tab for more up to date information. <br>
+* Sound
+* Death Effects
+* Winning the Game
+* Different Controls
+
 # Credits
 
 Generally, art has been jigsawed from countless authors working for free across the internet. <br>
