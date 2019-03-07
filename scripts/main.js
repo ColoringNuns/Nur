@@ -19,7 +19,7 @@ function setup() {
   peer.on('open', function(id) {
     peerID = id;
     gameState = 'PEER';
-    menu = new Select('Nur',['Join','Host']);
+    menu = new Select('Nur V1.1',['Join','Host']);
 	});
   peer.on('connection', function(c) {
     if (conn.nodes.length < 3) {
