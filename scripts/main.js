@@ -6,6 +6,7 @@ function setup() {
   createCanvas(...getSize());
   frameRate(60);
   textFont(font);
+  noSmooth();
   gameState = 'CONN';
 
   room = new Room();

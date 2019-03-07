@@ -104,8 +104,6 @@ class Room {
 
     this.player = new Player(this.player, height, obst, attSpr, bar, spawn);
 
-    noSmooth();
-
     this.ready = true;
   }
 
