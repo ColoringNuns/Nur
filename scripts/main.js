@@ -3,8 +3,7 @@ function preload() {
 }
 
 function setup() {
-  const size = getSize();
-  createCanvas(size.wid, size.hei);
+  createCanvas(...getSize());
   frameRate(60);
   textFont(font);
   gameState = 'CONN';
@@ -12,7 +11,7 @@ function setup() {
   room = new Room();
   menu = new Alert("Loading...");
   custID = Math.floor(Math.random() * 1000);
-  peer = new Peer('nurnunscf'+custID, {key: 'lwjd5qra8257b9'});
+  peer = new Peer('nurcoloringnuns'+custID, {key: 'lwjd5qra8257b9'});
   conn = { nodes:[], host:null };
   peerID = null;
   isHost = false;
@@ -33,17 +32,19 @@ function setup() {
 
 function getSize() {
   const screenRatio = windowWidth / windowHeight;
-  const aspectRatio = 12 / 7;
-  let wid = 12;
-  let hei = 7;
+  const aspX = 12;
+  const aspY = 7;
+  let wid = aspX;
+  let hei = aspY;
+  const aspectRatio = aspX / aspY;
   if (screenRatio > aspectRatio) {
 		hei = windowHeight;
-		wid = (12 * windowHeight) / 7;
+		wid = (aspX * windowHeight) / aspY;
 	} else {
 		wid = windowWidth;
-		hei = (7 * windowWidth) / 12;
+		hei = (aspY * windowWidth) / aspX;
 	}
-  return {wid:wid,hei:hei};
+  return [wid, hei];
 }
 
 function keyPressed() {
@@ -78,7 +79,7 @@ function draw() {
           gameState = 'INGAME';
         }
       } else if (gameState == 'HOST') {
-        conn.host = peer.connect('nurnunscf' + chosen);
+        conn.host = peer.connect('nurcoloringnuns' + chosen);
         conn.host.on('open', (id) => {
           menu = new Alert("Awaiting Host");
           gameState = 'MAP';
