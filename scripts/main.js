@@ -19,7 +19,7 @@ WAIT: A state for the client that tells them that they must wait for the host to
 GAME: A state for the game that tells the draw method that the game was started
 */
 
-DrivelineClient.connect('wss://driveline.1533.io:8080', {onConnected:connect});
+DrivelineClient.connect('ws://driveline.1533.io:8080', {onConnected:connect});
 function connect(client) {
   connection = client;
   GameState = "MODE";
