@@ -1,5 +1,5 @@
 class Player {
-  constructor(sprite, height, map, attSpr, bar, spawn) {
+  constructor(sprite, height, map, attSpr, spawn) {
     this.sp = sprite;
     this.jumpCounter = 0;
     this.attDelay = 0;
@@ -12,7 +12,6 @@ class Player {
     this.attSpr = attSpr;
     this.lives = 4;
     this.mult = 1;
-    this.hb = bar;
     this.dead = false;
     this.xspd = 0;
     this.yspd = 0;
@@ -26,11 +25,10 @@ class Player {
       this.lives = 0;
       this.dead = true;
     }
-    this.hb.set(this.lives / 4);
   }
 
   jump() {
-    if (this.jumpCounter < 2) { this.yspd = -4; this.jumpCounter++; }
+    if (this.jumpCounter < 2) { this.yspd = -8; this.jumpCounter++; }
   }
 
   update() {
@@ -57,7 +55,7 @@ class Player {
     this.sp.position.x += movement + this.xspd;
     this.xspd *= 0.95;
     this.sp.position.y += this.yspd;
-    this.yspd = Math.min(this.yspd + (keyIsDown(83) ? 0.4 : 0.2), 7);
+    this.yspd = Math.min(this.yspd + (keyIsDown(83) ? 1.6 : 0.8), 16);
 
     this.sp.collide(this.map, (spr1, spr2) => {
       if (this.yspd >= 0 && spr1.touching.bottom && !(spr1.touching.left || spr1.touching.right)) {
@@ -80,12 +78,12 @@ class Player {
     if (keyIsDown(65)) {
       this.currAnime = 'run';
       this.sp.mirrorX(-1);
-      finalMovement = -2;
+      finalMovement = -4;
     }
     if (keyIsDown(68)) {
       this.currAnime = 'run';
       this.sp.mirrorX(1);
-      finalMovement = 2;
+      finalMovement = 4;
     }
     if ((keyIsDown(65) && keyIsDown(68)) || (!keyIsDown(65) && !keyIsDown(68))) {
       this.currAnime = 'idle';
@@ -127,13 +125,13 @@ class Player {
     if (att1 && this.attDelay == 0 && !this.hasAttacked && this.attCool == 0) {
       this.sp.changeAnimation('kick');
       this.attSpr.changeAnimation('attack');
-      this.attSpr.animation.frameDelay = 3;
+      this.attSpr.animation.frameDelay = 1;
       this.attSpr.animation.changeFrame(0);
       this.attSpr.animation.looping = false;
       this.sp.animation.changeFrame(0);
       this.hasAttacked = true;
-      this.attDelay = 10;
-      this.attCool = 40;
+      this.attDelay = 4;
+      this.attCool = 16;
     }
   }
 }

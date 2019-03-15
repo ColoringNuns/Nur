@@ -1,10 +1,9 @@
 class Enemy {
-  constructor(sprite,attSpr,bar) {
+  constructor(sprite,attSpr) {
     this.sp = sprite;
     this.attSpr = attSpr;
     this.blanked = true;
     this.canAtt = true;
-    this.bar = bar;
   }
 
   update(x,y,mirror,label,frame,attX,attAnm,lives) {
@@ -35,12 +34,9 @@ class Enemy {
         this.blanked = true;
         this.canAtt = true;
       }
-
-      this.bar.set(lives / 4);
     } else {
       this.sp.changeAnimation('blank');
       this.attSpr.changeAnimation('blank');
-      this.bar.set(0);
     }
   }
 }

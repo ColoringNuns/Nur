@@ -53,11 +53,23 @@ class Room {
 
   addAnimations(dino,obj) {
     obj.addAnimation('idle', dino.idle);
+    obj.animation.frameDelay = 3;
     obj.addAnimation('run', dino.run);
+    obj.changeAnimation('run');
+    obj.animation.frameDelay = 1;
     obj.addAnimation('somer', dino.somer);
+    obj.changeAnimation('somer');
+    obj.animation.frameDelay = 3;
     obj.addAnimation('jump', dino.jump);
+    obj.changeAnimation('jump');
+    obj.animation.frameDelay = 1;
     obj.addAnimation('kick', dino.kick);
+    obj.changeAnimation('kick');
+    obj.animation.frameDelay = 2;
     obj.addAnimation('blank', this.blank);
+    obj.changeAnimation('blank');
+    obj.animation.frameDelay = 1;
+    obj.changeAnimation('idle');
   }
 
   generate(map,type,index) {
@@ -78,110 +90,41 @@ class Room {
       }
     }
 
-    const dinos = [this.doux,this.mort,this.tard,this.vita];
-    this.player = createSprite(spawn.x, spawn.y);
-    this.addAnimations(dinos[index],this.player);
-    this.player.changeAnimation('idle');
-    this.player.animation.frameDelay = 12;
-    this.player.setCollider('rectangle', 0, 0, 16, 16);
-
-    const attSpr = createSprite();
-    attSpr.addAnimation('attack', this.attack);
-    attSpr.addAnimation('blank', this.blank);
-    attSpr.setCollider('rectangle', 0, 0, 20, 20);
-    delete this.attack;
-    delete this.blank;
-
-    const bar = new ProgressBar.Line('#plr0bar', {
-      strokeWidth: 5,
-      easing: 'easeInOut',
-      color: '#' + colors[index],
-      trailColor: '#565656',
-      trailWidth: 5,
-      svgStyle: { width: '100%', height: '100%'},
-    });
-    bar.set(1);
-
-    this.player = new Player(this.player, height, obst, attSpr, bar, spawn);
+    this.player.sp.position.x = spawn.x;
+    this.player.sp.position.y = spawn.y;
+    this.player.map = obst;
 
     this.ready = true;
   }
 
-  initialize(type, conn, isHost, len, index) {
+  initialize(type, conn, myID, connection, gameID, myIndex) {
     this.ready = false;
     this.conn = conn;
-    this.isHost = isHost;
-    this.len = len;
+    this.ident = myID;
+    this.gameID = gameID;
     this.cameraShake = 0;
     this.bg = this[type];
+    this.client = connection;
 
-    this.enemies = [];
-    let k = 0;
-    for (let i = 0; i < len; i++) {
-      if (i != index) {
-        this.enemies.push(this.createEnemy(k + 1, i));
-
-        if (isHost) {
-          this.conn.nodes[i].on('data', (data) => {
-            if (data.enemy !== null) {
-              this.enemies[i].update(...data.enemy);
-              for (let j = 0; j < len; j++) {
-                if (i != j) {
-                  this.conn.nodes[j].send({enemy:[data.enemy,i]});
-                }
-              }
-            }
-          });
-        }
-        k++;
-      } else {
-        this.enemies.push(null);
-      }
-    }
-    if (!isHost) {
-      this.hostSpr = this.createEnemy(len, len);
-
-      this.conn.host.on('data', (data) => {
-        if (data.enemy !== null) {
-          if (data.enemy[1] != -1) {
-            this.enemies[data.enemy[1]].update(...data.enemy[0]);
-          } else {
-            this.hostSpr.update(...data.enemy[0]);
-          }
-        }
-      });
-    }
-
-    fetch('maps/'+ type +'/data.txt')
-      .then(response => response.text())
-      .then(fore => this.generate(fore,type,(index != -1 ? index : len)))
-  }
-
-  createEnemy(index,color) {
     const dinos = [this.doux,this.mort,this.tard,this.vita];
-    const enem = createSprite();
-    this.addAnimations(dinos[color],enem);
-    enem.changeAnimation('blank');
-    enem.animation.frameDelay = 12;
-    enem.setCollider('rectangle', 0, 0, 15, 16);
+    const charSpr = createSprite(0,0);
+    this.addAnimations(dinos[myIndex],charSpr);
+    charSpr.changeAnimation('idle');
+    charSpr.setCollider('rectangle', 0, 0, 16, 16);
 
     const attSpr = createSprite();
     attSpr.addAnimation('attack', this.attack);
     attSpr.addAnimation('blank', this.blank);
-    attSpr.changeAnimation('blank');
     attSpr.setCollider('rectangle', 0, 0, 20, 20);
 
-    const bar = new ProgressBar.Line('#plr' + index + 'bar', {
-      strokeWidth: 5,
-      easing: 'easeInOut',
-      color: '#' + colors[color],
-      trailColor: '#565656',
-      trailWidth: 5,
-      svgStyle: { width: '100%', height: '100%'},
-    });
-    bar.set(1);
+    const obst = new Group();
+    obst.add(createSprite(0,0));
 
-    return new Enemy(enem, attSpr, bar);
+    this.player = new Player(charSpr, height, obst, attSpr, {x:0,y:0});
+
+    fetch('maps/'+ type +'/data.txt')
+      .then(response => response.text())
+      .then(fore => this.generate(fore,type,myIndex))
   }
 
   handleKey(key) {
@@ -190,37 +133,24 @@ class Room {
     }
   }
 
-  draw() {
+  draw(others) {
     scale(width / 480);
     background('#20263e');
 
     image(this.bg,0,0);
 
-    for (let i = 0; i < this.enemies.length; i++) {
-      if (this.enemies[i] != null) {
-        drawSprite(this.enemies[i].sp);
-      }
+    for (let i in others) {
+      drawSprite(others[i].sp);
     }
-    if (!this.isHost) {
-      drawSprite(this.hostSpr.sp);
+    drawSprite(this.player.sp);
+
+    for (let i in others) {
+      drawSprite(others[i].attSpr);
     }
-    if (this.ready) {
-      drawSprite(this.player.sp);
-    }
-    for (let i = 0; i < this.enemies.length; i++) {
-      if (this.enemies[i] != null) {
-        drawSprite(this.enemies[i].attSpr);
-      }
-    }
-    if (!this.isHost) {
-      drawSprite(this.hostSpr.attSpr);
-    }
-    if (this.ready) {
-      drawSprite(this.player.attSpr);
-    }
+    drawSprite(this.player.attSpr);
   }
 
-  update() {
+  update(others) {
     if (this.cameraShake != 0) {
       camera.position.x = (Math.random() * 5) + width / 2;
       camera.position.y = (Math.random() * 5) + height / 2;
@@ -230,67 +160,37 @@ class Room {
       camera.position.y = height / 2;
     }
 
-    if (this.ready) {
-      if (!this.player.dead) {
-        this.player.update();
-        for (let i = 0; i < this.enemies.length; i++) {
-          if (this.enemies[i] != null) {
-            for (let j = 0; j < this.enemies.length; j++) {
-              if (this.enemies[j] != null && i != j) {
-                if (this.enemies[j].sp.overlap(this.enemies[i].attSpr) && this.enemies[i].attSpr.getAnimationLabel() == 'attack' && this.enemies[i].canAtt) {
-                  this.cameraShake = 10;
-                }
-              }
-            }
-            if (this.enemies[i].sp.overlap(this.player.attSpr) && this.player.attSpr.getAnimationLabel() == 'attack') {
-              this.cameraShake = 10;
-            }
-            if (this.player.sp.overlap(this.enemies[i].attSpr) && this.enemies[i].attSpr.getAnimationLabel() == 'attack' && this.enemies[i].canAtt) {
-              this.enemies[i].canAtt = false;
-              this.player.yspd = -4;
-              this.player.xspd = 0.25 * this.player.mult * (this.enemies[i].sp.position.x > this.player.sp.position.x ? -1 : 1);
-              this.player.mult++;
-              this.cameraShake = 15;
-            }
-          }
-        }
-      }
-      const data = [
-        this.player.sp.position.x,
-        this.player.sp.position.y,
-        this.player.sp.mirrorX(),
-        animations.indexOf(this.player.sp.getAnimationLabel()),
-        this.player.sp.animation.getFrame(),
-        this.player.attSpr.position.x,
-        (this.player.attSpr.getAnimationLabel() == 'attack'),
-        this.player.lives
-      ];
-      if (this.isHost) {
-        for (let i = 0; i < this.len; i++) {
-          this.conn.nodes[i].send({
-            enemy:[data,-1]
-          });
-        }
-      } else {
-        for (let j = 0; j < this.enemies.length; j++) {
-          if (this.enemies[j] != null) {
-            if (this.enemies[j].sp.overlap(this.hostSpr.attSpr) && this.hostSpr.attSpr.getAnimationLabel() == 'attack' && this.hostSpr.canAtt) {
+    if (!this.player.dead) {
+      this.player.update();
+      for (let i in others) {
+        for (let j in others) {
+          if (i != j) {
+            if (others[j].sp.overlap(others[i].attSpr) && others[i].attSpr.getAnimationLabel() == 'attack' && others[i].canAtt) {
               this.cameraShake = 10;
             }
           }
         }
-        if (this.hostSpr.sp.overlap(this.player.attSpr) && this.player.attSpr.getAnimationLabel() == 'attack') {
+        if (others[i].sp.overlap(this.player.attSpr) && this.player.attSpr.getAnimationLabel() == 'attack') {
           this.cameraShake = 10;
         }
-        if (this.player.sp.overlap(this.hostSpr.attSpr) && this.hostSpr.attSpr.getAnimationLabel() == 'attack' && this.hostSpr.canAtt) {
-          this.hostSpr.canAtt = false;
-          this.player.yspd = -4;
-          this.player.xspd = 0.4 * this.player.mult * (this.hostSpr.sp.position.x > this.player.sp.position.x ? -1 : 1);
+        if (this.player.sp.overlap(others[i].attSpr) && others[i].attSpr.getAnimationLabel() == 'attack' && others[i].canAtt) {
+          others[i].canAtt = false;
+          this.player.yspd = -10;
+          this.player.xspd = 0.25 * this.player.mult * (others[i].sp.position.x > this.player.sp.position.x ? -1 : 1);
           this.player.mult++;
           this.cameraShake = 15;
         }
-        this.conn.host.send({enemy:data});
       }
     }
+    this.client.append("TOMERNUR" + this.gameID, {update:[
+      this.player.sp.position.x,
+      this.player.sp.position.y,
+      this.player.sp.mirrorX(),
+      animations.indexOf(this.player.sp.getAnimationLabel()),
+      this.player.sp.animation.getFrame(),
+      this.player.attSpr.position.x,
+      (this.player.attSpr.getAnimationLabel() == 'attack'),
+      this.player.lives
+    ], ident:this.ident});
   }
 }
