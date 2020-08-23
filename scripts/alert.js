@@ -1,17 +1,17 @@
 class Alert {
-  constructor(label) {
-    this.label = label;
-  }
+    constructor(label) {
+        this.label = label;
+    }
 
-  handleKey() {}
+    handleKey() {}
 
-  checkChosen() { return false; }
+    checkChosen() { return false; }
 
-  draw() {
-    background('#20263e');
-    fill('#fff');
-    textSize(30);
-    textAlign(LEFT, BOTTOM);
-    text(this.label, 20, height - 10);
-  }
+    draw() {
+        background('#20263e');
+        fill('#fff');
+        textSize(30);
+        textAlign(LEFT, BOTTOM);
+        text(this.label, 20, height - 10);
+    }
 }

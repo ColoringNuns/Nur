@@ -24,25 +24,3 @@ canvas {
   transform: translate(-50%,-50%);
   z-index: 0;
 }
-
-.bar {
-  position: fixed;
-  width: 200px;
-  height: 8px;
-  z-index: 1;
-}
-
-#plr0bar {
-  top: 50%;
-  left: 50%;
-  transform: translate(calc(-50% - 379px), calc(-50% + 285px));
-}
-#plr1bar {
-  transform: translateX(253px);
-}
-#plr2bar {
-  transform: translateX(253px);
-}
-#plr3bar {
-  transform: translateX(253px);
-}
