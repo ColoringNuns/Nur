@@ -26,7 +26,9 @@ function connect(client) {
   menu.reset("SELECT","Nur V2.1",["Host","Join"]);
 }
 
-function preload() { font = loadFont('assets/start.ttf'); }
+function preload() {
+  font = loadFont('assets/start.ttf');
+}
 
 function setup() {
   createCanvas(...getSize());
@@ -41,12 +43,19 @@ function setup() {
 
 function draw() {
   update();
-  (GameState != "GAME" ? menu.draw() : room.draw(others));
+
+  if (GameState != "GAME") {
+    menu.draw();
+  } else {
+    room.draw(others);
+  }
 }
 
 function update() {
   if (GameState != "GAME") {
-    if (GameState == "HOST") menu.label = "ID" + gameID + " " + conn.length + "P";
+    if (GameState == "HOST") {
+      menu.label = "ID" + gameID + " " + conn.length + "P";
+    }
 
     const chosen = menu.checkChosen();
     if (chosen) {
@@ -93,14 +102,18 @@ function update() {
           break;
       }
     }
-  } else { room.update(others) }
+  } else {
+    room.update(others);
+  }
 }
 
 function beginListening(identifier) {
   query = connection.continuousQuery("SELECT * FROM STREAM TOMERNUR" + identifier, ({recordId, record, error}) => {
     if (error) return;
 
-    if (record.conn != undefined) conn.push(record.conn);
+    if (record.conn != undefined) {
+      conn.push(record.conn);
+    }
 
     if (record.game != undefined && GameState != "GAME") {
       const myIndex = createEnemies();
@@ -115,8 +128,11 @@ function beginListening(identifier) {
 }
 
 function createEnemies() {
-  for (let i = 0; i < conn.length; i++)
-    if (conn[i] != gameID) others[conn[i]] = this.createEnemy(i);
+  for (let i = 0; i < conn.length; i++) {
+    if (conn[i] != gameID) {
+      others[conn[i]] = this.createEnemy(i);
+    }
+  }
   return conn.indexOf(gameID);
 }
 
@@ -137,7 +153,11 @@ function createEnemy(color) {
 }
 
 function keyPressed(e) {
-  (GameState != "GAME" ? menu.handleKey(e.keyCode) : room.handleKey(e.keyCode));
+  if (GameState != "GAME") {
+    menu.handleKey(e.keyCode);
+  } else {
+    room.handleKey(e.keyCode);
+  }
 }
 
 function getSize() {
