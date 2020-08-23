@@ -1,8 +1,8 @@
 let gameID = Math.floor(Math.random() * 100000);
-let others = {};
 let connection;
 let GameState;
 let conn = [];
+let others = {};
 let query;
 let menu;
 let room;
@@ -23,7 +23,7 @@ DrivelineClient.connect('ws://driveline.1533.io:8080', {onConnected:connect});
 function connect(client) {
   connection = client;
   GameState = "MODE";
-  menu.reset("SELECT","Nur V2.1",["Host","Join"]);
+  menu.reset("SELECT","Nur V2.0",["Host","Join"]);
 }
 
 function preload() {
