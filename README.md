@@ -1,7 +1,9 @@
 # About
 
-This is a project I was pretty hyped to work on :) <br>
-It uses the Driveline library for communications, but unfortunately it was depreciated and as such the game is generally no longer functional. I may come back and patch it at a later date.
+This is a project i'm pretty hyped to work on :) <br>
+It uses the PeerJS library to allow communication between static sites without having to host a custom server.
+
+It also uses the p5JS library to handle the graphical aspect of the game.
 
 # Controls
 
