@@ -46,15 +46,13 @@ class Player {
         this.getAttack();
         if (this.attDelay == 0) {
             this.attSpr.changeAnimation('blank');
-            if (this.currAnime != 'jump') {
-                this.sp.changeAnimation(this.currAnime);
-            }
-        };
+            if (this.currAnime != 'jump') this.sp.changeAnimation(this.currAnime);
+        }
 
         const movement = this.horizMov();
         this.sp.position.x += movement + this.xspd;
-        this.xspd *= 0.95;
         this.sp.position.y += this.yspd;
+        this.xspd *= 0.95;
         this.yspd = Math.min(this.yspd + (keyIsDown(83) ? 0.4 : 0.2), 7);
 
         this.sp.collide(this.map, (spr1, spr2) => {
@@ -119,9 +117,7 @@ class Player {
 
     getAttack() {
         const att1 = keyIsDown(74);
-        if (!att1) {
-            this.hasAttacked = false;
-        }
+        if (!att1) this.hasAttacked = false;
         if (att1 && this.attDelay == 0 && !this.hasAttacked && this.attCool == 0) {
             this.sp.changeAnimation('kick');
             this.attSpr.changeAnimation('attack');

@@ -18,10 +18,9 @@ class Select {
     }
 
     checkChosen() {
-        if (!keyIsDown(13)) {
-            this.allow = true;
-        }
-        if (keyIsDown(13) && this.allow) {
+        const enter = keyIsDown(13);
+        if (!enter) this.allow = true;
+        if (enter && this.allow) {
             this.allow = false;
             return (this.options[this.current].toLowerCase());
         }
@@ -33,9 +32,8 @@ class Select {
         fill('#fff');
         textSize(20);
         textAlign(RIGHT, BOTTOM);
-        for (let i = 0; i < this.options.length; i++) {
+        for (let i = 0; i < this.options.length; i++)
             text((this.options[this.current] == this.options[i] ? '> ' : '') + this.options[i], width - 20, height - 10 - (30 * i));
-        }
 
         textSize(30);
         textAlign(LEFT, BOTTOM);

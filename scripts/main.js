@@ -12,7 +12,7 @@ function setup() {
     room = new Room();
     menu = new Alert("Loading...");
     custID = Math.floor(Math.random() * 1000);
-    peer = new Peer('nurcoloringnuns'+custID, {key: 'lwjd5qra8257b9'});
+    peer = new Peer(idPrefix+custID, {key: 'lwjd5qra8257b9'});
     conn = { nodes:[], host:null };
     peerID = null;
     isHost = false;
@@ -24,30 +24,16 @@ function setup() {
 	});
 
     peer.on('connection', function(c) {
-        if (conn.nodes.length < 3) {
+        if (conn.nodes.length < 3)
             conn.nodes.push(c);
-        }
-        if (conn.nodes.length >= 3) {
+
+        if (conn.nodes.length == 3)
             menu.label = "Room Full";
-        }
     });
 }
 
 function getSize() {
-    const screenRatio = windowWidth / windowHeight;
-    const aspX = 12;
-    const aspY = 7;
-    let wid = aspX;
-    let hei = aspY;
-    const aspectRatio = aspX / aspY;
-    if (screenRatio > aspectRatio) {
-		hei = windowHeight;
-		wid = (aspX * windowHeight) / aspY;
-	} else {
-		wid = windowWidth;
-		hei = (aspY * windowWidth) / aspX;
-	}
-    return [wid, hei];
+    return (windowWidth*7 > windowHeight*12 ? [windowHeight*(12/7), windowHeight] : [windowWidth, windowWidth*(7/12)]);
 }
 
 function keyPressed() {
@@ -82,7 +68,7 @@ function draw() {
                     gameState = 'INGAME';
                 }
             } else if (gameState == 'HOST') {
-                conn.host = peer.connect('nurcoloringnuns' + chosen);
+                conn.host = peer.connect(idPrefix + chosen);
                 conn.host.on('open', (id) => {
                     menu = new Alert("Awaiting Host");
                     gameState = 'MAP';
@@ -96,11 +82,7 @@ function draw() {
                 menu.label = 'Joining...';
             }
         } else {
-            if (gameState == 'MAP' && isHost) {
-                if (isHost) {
-                    menu.label = "ID" + custID + " " + (conn.nodes.length + 1) + "P";
-                }
-            }
+            if (gameState == 'MAP' && isHost) menu.label = "ID" + custID + " " + (conn.nodes.length + 1) + "P";
             menu.draw();
         }
     } else {

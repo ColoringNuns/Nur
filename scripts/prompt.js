@@ -17,10 +17,9 @@ class Prompt {
     }
 
     checkChosen() {
-        if (!keyIsDown(13)) {
-            this.allow = true;
-        }
-        if (keyIsDown(13) && this.allow && !this.entered) {
+        const enter = keyIsDown(13);
+        if (!enter) this.allow = true;
+        if (enter && this.allow && !this.entered) {
             this.allow = false;
             this.entered = true;
             return this.text;
